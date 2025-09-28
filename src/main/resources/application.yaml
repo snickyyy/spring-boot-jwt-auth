@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: spring-boot-jwt-auth
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  jpa:
+    show-sql: ${app.debug}
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+
+app:
+  debug: ${DEBUG:false}
