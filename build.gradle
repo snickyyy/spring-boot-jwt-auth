@@ -1,8 +1,11 @@
+import com.github.spotbugs.snom.SpotBugsTask
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
+    id 'com.github.spotbugs' version '6.4.2'
 }
 
 group = 'sc.snicky'
@@ -19,6 +22,16 @@ checkstyle {
     toolVersion = "10.12.4"
     configFile = file("config/checkstyle/checkstyle.xml")
 }
+
+tasks.withType(SpotBugsTask).configureEach {
+    group = "linters"
+    reports {
+        xml.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.file("reports/spotbugs.html"))
+    }
+}
+
 
 tasks.withType(Checkstyle).configureEach {
     group = "linters"
