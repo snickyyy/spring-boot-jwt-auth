@@ -17,13 +17,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_DB: testDb
+      POSTGRES_USER: testUser
+      POSTGRES_PASSWORD: testPassword
+      POSTGRES_URL: jdbc:postgresql://localhost:5432/${{ env.POSTGRES_DB }}
+      POSTGRES_USERNAME: ${{ env.POSTGRES_USER }}
+      POSTGRES_PASSWORD_ENV: ${{ env.POSTGRES_PASSWORD }}
+
     services:
       postgres:
         image: postgres:16.4
         env:
-          POSTGRES_USER: testUser
-          POSTGRES_PASSWORD: testPassword
-          POSTGRES_DB: testDb
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
         ports:
           - 5432:5432
         options: >-
@@ -32,10 +40,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    env:
-      POSTGRES_URL: jdbc:postgresql://localhost:5432/testDb
-      POSTGRES_USERNAME: testUser
-      POSTGRES_PASSWORD: testPassword
+
 
     steps:
       - name: Checkout repository
