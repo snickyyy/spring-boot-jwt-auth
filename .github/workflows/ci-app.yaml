@@ -2,8 +2,6 @@ name: CI pipeline
 
 on:
   push:
-    branches:
-      - main
     paths-ignore:
       - '**.md'
 
@@ -21,9 +19,9 @@ jobs:
       POSTGRES_DB: testDb
       POSTGRES_USER: testUser
       POSTGRES_PASSWORD: testPassword
-      POSTGRES_URL: jdbc:postgresql://localhost:5432/${{ env.POSTGRES_DB }}
-      POSTGRES_USERNAME: ${{ env.POSTGRES_USER }}
-      POSTGRES_PASSWORD_ENV: ${{ env.POSTGRES_PASSWORD }}
+      POSTGRES_URL: jdbc:postgresql://localhost:5432/testDb
+      POSTGRES_USERNAME: testUser
+      POSTGRES_PASSWORD_ENV: testPassword
 
     services:
       postgres:
