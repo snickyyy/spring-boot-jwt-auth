@@ -69,6 +69,7 @@
     <module name="FileLength"/>
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
+        <property name="max" value="140"/>
     </module>
 
     <!-- Checks for whitespace                               -->
