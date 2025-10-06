@@ -8,8 +8,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -20,6 +22,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@ToString
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "tokens")
 public class Token extends BaseEntity<UUID> implements Serializable {
     /**
@@ -37,6 +41,8 @@ public class Token extends BaseEntity<UUID> implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private User user;
 
     /**

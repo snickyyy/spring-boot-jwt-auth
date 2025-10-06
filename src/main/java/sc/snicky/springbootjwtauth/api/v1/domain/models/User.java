@@ -5,8 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +18,8 @@ import java.util.Set;
 
 @Getter
 @Setter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity(name = "users")
 public class User extends BaseEntity<Integer> implements Serializable {
     /**
@@ -47,5 +51,7 @@ public class User extends BaseEntity<Integer> implements Serializable {
      * Tokens associated with the user.
      */
     @OneToMany(mappedBy = "user")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Token> tokens = new LinkedHashSet<>();
 }
