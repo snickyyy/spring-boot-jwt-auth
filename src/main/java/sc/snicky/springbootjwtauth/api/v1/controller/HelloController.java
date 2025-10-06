@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sc.snicky.springbootjwtauth.api.v1.domain.dtos.responses.MessageResponse;
+import sc.snicky.springbootjwtauth.api.v1.domain.dtos.web.responses.MessageResponse;
 
 @RestController
 @RequestMapping("/api/v1")
