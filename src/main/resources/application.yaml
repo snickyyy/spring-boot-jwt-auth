@@ -12,6 +12,12 @@ spring:
       hibernate:
         format_sql: true
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migrations
+    schemas: admin
+    table: flyway_schema_history
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/postgres}
