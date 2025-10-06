@@ -27,13 +27,12 @@ public class TokenRepositoryConfig {
      * Activated when the property `app.auth.tokens.refresh.db` is set to `redis`.
      * Currently not implemented.
      *
-     * @param jpaTokenRepository the JPA token repository dependency
      * @return nothing, always throws UnsupportedOperationException
      * @throws UnsupportedOperationException if called
      */
     @Bean
     @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "redis")
-    public BasicTokenRepository redisTokenRepository(JpaTokenRepository jpaTokenRepository) {
+    public BasicTokenRepository redisTokenRepository() {
         throw new UnsupportedOperationException("Redis token repository is not implemented yet."); // todo: change
     }
 }
