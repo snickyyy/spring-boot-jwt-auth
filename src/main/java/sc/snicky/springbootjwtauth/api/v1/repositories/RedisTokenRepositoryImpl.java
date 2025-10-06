@@ -1,0 +1,48 @@
+package sc.snicky.springbootjwtauth.api.v1.repositories;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
+
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Repository implementation for storing tokens in Redis.
+ * <p>
+ * The actual implementation is not available yet and will be added in the future.
+ */
+@Repository
+@RequiredArgsConstructor
+public class RedisTokenRepositoryImpl implements BasicTokenRepository { //todo add implementation
+    /**
+     * Saves the given token to Redis storage.
+     *
+     * @param token the token to save
+     */
+    @Override
+    public void save(Token token) {
+
+    }
+
+    /**
+     * Finds a token in Redis by its UUID.
+     *
+     * @param token the UUID of the token to find
+     * @return an Optional containing the found token, or empty if not found
+     */
+    @Override
+    public Optional<Token> findByToken(UUID token) {
+        return Optional.empty();
+    }
+
+    /**
+     * Deletes the token with the specified UUID from Redis.
+     *
+     * @param token the UUID of the token to delete
+     */
+    @Override
+    public void delete(UUID token) {
+
+    }
+}
