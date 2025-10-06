@@ -1,0 +1,29 @@
+package sc.snicky.springbootjwtauth.api.v1.domain.models;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Entity(name = "roles")
+public class Role extends BaseEntity<Integer> implements Serializable {
+    /**
+     * Maximum allowed length for the role name.
+     */
+    private static final int ROLE_NAME_MAX_LENGTH = 50;
+
+    /**
+     * The name of the role.
+     * Must be unique and not null. Maximum length is 50 characters.
+     **/
+    @Column(name = "name", nullable = false, length = ROLE_NAME_MAX_LENGTH, unique = true)
+    private String name;
+}
