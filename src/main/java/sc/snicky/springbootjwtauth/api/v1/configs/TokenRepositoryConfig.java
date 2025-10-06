@@ -1,5 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.configs;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaTokenRepository;
@@ -14,6 +16,8 @@ public class TokenRepositoryConfig {
      * @param jpaTokenRepository the JPA token repository dependency
      * @return a PostgresTokenRepositoryImpl instance
      */
+    @Bean
+    @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "postgres")
     public BasicTokenRepository postgresTokenRepository(JpaTokenRepository jpaTokenRepository) {
         return new PostgresTokenRepositoryImpl(jpaTokenRepository);
     }
@@ -27,6 +31,8 @@ public class TokenRepositoryConfig {
      * @return nothing, always throws UnsupportedOperationException
      * @throws UnsupportedOperationException if called
      */
+    @Bean
+    @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "redis")
     public BasicTokenRepository redisTokenRepository(JpaTokenRepository jpaTokenRepository) {
         throw new UnsupportedOperationException("Redis token repository is not implemented yet."); // todo: change
     }
