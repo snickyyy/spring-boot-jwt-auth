@@ -3,6 +3,7 @@ package sc.snicky.springbootjwtauth.api.v1.services;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,18 +23,19 @@ import java.util.stream.Collectors;
  * Implementation of AccessTokenService interface responsible for JWT token operations:
  * generating tokens, validating tokens, and extracting claims from tokens.
  */
+@Setter
 @Service
 public class AccessTokenServiceImpl implements AccessTokenService {
     /**
      * Duration of access token in milliseconds, loaded from application properties.
      */
-    @Value("${app.auth.tokens.expiration.access}")
+    @Value("${app.auth.tokens.expiration.access:3600000}")
     private Long accessTokenDurationMs;
 
     /**
      * Secret key used for signing JWT tokens, loaded from application properties.
      */
-    @Value("${app.auth.tokens.secret.access}")
+    @Value("${app.auth.tokens.secret.access:default_jwt_signing_key_which_should_be_replaced}")
     private String jwtSigningKey;
 
     /**
@@ -47,6 +49,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
         var claims = extractAllClaims(token);
         var roles = (List<String>) claims.get("roles");
         return roles.stream()
+                .map(x -> x.replace("ROLE_", "")) // Remove "ROLE_" prefix if present
                 .map(ERole::valueOf)
                 .collect(Collectors.toSet());
     }
@@ -73,7 +76,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      */
     @Override
     public boolean isValid(String token) {
-        return isTokenExpired(token);
+        return !isTokenExpired(token);
     }
 
     /**
