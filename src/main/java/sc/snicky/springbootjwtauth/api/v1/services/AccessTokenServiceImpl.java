@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -161,6 +162,6 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * @return The SecretKey object used for signing
      */
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSigningKey.getBytes());
+        return Keys.hmacShaKeyFor(jwtSigningKey.getBytes(StandardCharsets.UTF_8));
     }
 }
