@@ -70,6 +70,7 @@ dependencies {
     implementation "io.jsonwebtoken:jjwt-api:${versions.jsonwebtoken}"
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${versions.jsonwebtoken}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${versions.jsonwebtoken}"
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation('org.springframework.boot:spring-boot-starter') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
