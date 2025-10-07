@@ -26,3 +26,16 @@ spring:
 
 app:
   debug: ${DEBUG:false}
+  auth:
+    tokens:
+      refresh:
+        db: "postgres"
+
+      secret:
+        access: ${JWT_ACCESS_SECRET:your_access_secret_key__________________________}
+        refresh: ${JWT_REFRESH_SECRET:your_refresh_secret_key__________________________}
+
+      expiration:
+        access: 900000          # 15 minutes
+        refresh: 604800000      # 7 days
+
