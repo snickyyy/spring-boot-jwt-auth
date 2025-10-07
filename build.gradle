@@ -13,6 +13,12 @@ group = 'sc.snicky'
 version = '0.0.1-SNAPSHOT'
 description = 'spring-boot-jwt-auth'
 
+ext {
+    versions = [
+            jsonwebtoken: "0.12.5"
+    ]
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -61,7 +67,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation "io.jsonwebtoken:jjwt-api:${versions.jsonwebtoken}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${versions.jsonwebtoken}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${versions.jsonwebtoken}"
     implementation('org.springframework.boot:spring-boot-starter') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
