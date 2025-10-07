@@ -4,7 +4,7 @@ public enum ERole {
     /**
      * Represents an anonymous user with limited access.
      */
-    ANONIMOUS,
+    ANONYMOUS,
 
     /**
      * Represents a regular authenticated user.
