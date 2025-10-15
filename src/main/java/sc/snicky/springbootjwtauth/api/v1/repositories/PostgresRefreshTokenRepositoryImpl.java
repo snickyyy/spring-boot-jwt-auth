@@ -2,17 +2,19 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * The implementation of the BasicTokenRepository interface for managing tokens in a PostgreSQL database.
+ * The implementation of the BasicRefreshTokenRepository interface for managing tokens in a PostgreSQL database.
  */
 @Repository
 @RequiredArgsConstructor
-public class PostgresTokenRepositoryImpl implements BasicTokenRepository {
+public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
     /**
      * JPA token repository for database operations.
      */
@@ -24,8 +26,14 @@ public class PostgresTokenRepositoryImpl implements BasicTokenRepository {
      * @param token the token to save
      */
     @Override
-    public void save(Token token) {
-        jpaTokenRepository.save(token);
+    public void save(RefreshTokenDetails token) {
+        var entityToken = Token.builder()
+                .id(token.getToken())
+                .user(token.getUser())
+                .exp(token.getExpiry())
+                .build();
+        entityToken.setCreatedAt(token.getCreatedAt());
+        jpaTokenRepository.save(entityToken);
     }
 
     /**
@@ -35,8 +43,8 @@ public class PostgresTokenRepositoryImpl implements BasicTokenRepository {
      * @return an Optional containing the found token, or empty if not found
      */
     @Override
-    public Optional<Token> findByToken(UUID token) {
-        return jpaTokenRepository.findById(token);
+    public Optional<RefreshTokenDetails> findByToken(UUID token) {
+        return jpaTokenRepository.findById(token).map(PostgresTokenAdaptor::ofToken);
     }
 
     /**
