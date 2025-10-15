@@ -3,9 +3,9 @@ package sc.snicky.springbootjwtauth.api.v1.configs;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sc.snicky.springbootjwtauth.api.v1.repositories.BasicTokenRepository;
+import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaTokenRepository;
-import sc.snicky.springbootjwtauth.api.v1.repositories.PostgresTokenRepositoryImpl;
+import sc.snicky.springbootjwtauth.api.v1.repositories.PostgresRefreshTokenRepositoryImpl;
 
 @Configuration
 public class TokenRepositoryConfig {
@@ -18,8 +18,8 @@ public class TokenRepositoryConfig {
      */
     @Bean
     @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "postgres")
-    public BasicTokenRepository postgresTokenRepository(JpaTokenRepository jpaTokenRepository) {
-        return new PostgresTokenRepositoryImpl(jpaTokenRepository);
+    public BasicRefreshTokenRepository postgresTokenRepository(JpaTokenRepository jpaTokenRepository) {
+        return new PostgresRefreshTokenRepositoryImpl(jpaTokenRepository);
     }
 
     /**
@@ -32,7 +32,7 @@ public class TokenRepositoryConfig {
      */
     @Bean
     @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "redis")
-    public BasicTokenRepository redisTokenRepository() {
+    public BasicRefreshTokenRepository redisTokenRepository() {
         throw new UnsupportedOperationException("Redis token repository is not implemented yet."); // todo: change
     }
 }

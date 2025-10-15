@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 @Repository
 @RequiredArgsConstructor
-public class PostgresTokenRepositoryImpl implements BasicTokenRepository {
+public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
     /**
      * JPA token repository for database operations.
      */

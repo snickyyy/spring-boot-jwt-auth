@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @Repository
 @RequiredArgsConstructor
-public class RedisTokenRepositoryImpl implements BasicTokenRepository { //todo add implementation
+public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
      * Saves the given token to Redis storage.
      *

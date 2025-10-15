@@ -1,15 +1,15 @@
 package sc.snicky.springbootjwtauth.api.v1.domain.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PostgresTokenAdaptor implements RefreshTokenDetails {
     private UUID token;
     private Integer userId;
@@ -22,7 +22,7 @@ public class PostgresTokenAdaptor implements RefreshTokenDetails {
      * @param token the source token object
      * @return a new {@link PostgresTokenAdaptor} with fields populated from the token
      */
-    public static  PostgresTokenAdaptor ofToken(Token token) {
+    public static PostgresTokenAdaptor ofToken(Token token) {
         return PostgresTokenAdaptor.builder()
                 .token(token.getId())
                 .userId(token.getUser().getId())

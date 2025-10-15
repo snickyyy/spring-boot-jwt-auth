@@ -10,7 +10,7 @@ import java.util.UUID;
  * This repository serves as a basic repository for maintaining token and should have implementation.
  */
 @Repository
-public interface BasicTokenRepository {
+public interface BasicRefreshTokenRepository {
     /**
      * Save token.
      *
