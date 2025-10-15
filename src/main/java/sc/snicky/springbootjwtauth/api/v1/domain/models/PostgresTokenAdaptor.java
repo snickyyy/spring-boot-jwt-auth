@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PostgresTokenAdaptor implements RefreshTokenDetails {
     private UUID token;
-    private Integer userId;
+    private User user;
     private Instant expiry;
     private Instant createdAt;
 
@@ -25,7 +25,7 @@ public class PostgresTokenAdaptor implements RefreshTokenDetails {
     public static PostgresTokenAdaptor ofToken(Token token) {
         return PostgresTokenAdaptor.builder()
                 .token(token.getId())
-                .userId(token.getUser().getId())
+                .user(token.getUser())
                 .createdAt(token.getCreatedAt())
                 .expiry(token.getExp())
                 .build();

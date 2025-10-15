@@ -17,12 +17,12 @@ public interface RefreshTokenDetails {
     UUID getToken();
 
     /**
-     * Returns the unique identifier of the user who owns this refresh token.
+     * Returns the user who owns this refresh token.
      * This links the token to a specific user in the system.
      *
      * @return the user ID as an Integer, never {@code null}
      */
-    Integer getUserId();
+    User getUser();
 
     /**
      * Returns the expiration timestamp of the refresh token.
