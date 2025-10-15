@@ -3,7 +3,6 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 
 import java.util.Optional;
 import java.util.UUID;
