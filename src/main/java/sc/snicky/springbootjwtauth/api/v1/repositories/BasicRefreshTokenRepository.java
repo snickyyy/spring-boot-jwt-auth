@@ -1,7 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import org.springframework.stereotype.Repository;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +16,7 @@ public interface BasicRefreshTokenRepository {
      *
      * @param token the token
      */
-    void save(Token token);
+    void save(RefreshTokenDetails token);
 
     /**
      * Find token by uuid of token.
@@ -24,7 +24,7 @@ public interface BasicRefreshTokenRepository {
      * @param token the token
      * @return the optional
      */
-    Optional<Token> findByToken(UUID token);
+    Optional<RefreshTokenDetails> findByToken(UUID token);
 
     /**
      * Delete token.
