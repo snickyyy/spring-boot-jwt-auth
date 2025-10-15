@@ -28,6 +28,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final JpaUserRepository jpaUserRepository;
 
+    /**
+     * Generates a new refresh token for the user with the specified ID.
+     *
+     * @param userId the ID of the user
+     * @return the generated refresh token details
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     public RefreshTokenDetails generate(Integer userId) {
         var user = jpaUserRepository.findById(userId).orElseThrow(
@@ -41,12 +48,25 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return result;
     }
 
+    /**
+     * Generates a new refresh token for the specified user.
+     *
+     * @param user the user entity
+     * @return the generated refresh token details
+     */
     public RefreshTokenDetails generate(User user) {
         var result = PostgresTokenAdaptor.ofToken(buildToken(user));
         basicRefreshTokenRepository.save(result);
         return result;
     }
 
+    /**
+     * Generates a new refresh token for the specified user with a custom expiration.
+     *
+     * @param user the user entity
+     * @param expiration the expiration instant
+     * @return the generated refresh token details
+     */
     public RefreshTokenDetails generate(User user, Instant expiration) {
         var result = PostgresTokenAdaptor.ofToken(buildToken(user));
         result.setExpiry(expiration);
@@ -54,6 +74,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return result;
     }
 
+    /**
+     * Rotates (replaces) the specified refresh token with a new one.
+     *
+     * @param oldToken the UUID of the old refresh token
+     * @return the new refresh token details
+     * @throws RefreshTokenNotValid if the old token is not found or invalid
+     */
     @Override
     @Transactional
     public RefreshTokenDetails rotate(UUID oldToken) {
@@ -68,11 +95,23 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 });
     }
 
+    /**
+     * Finds a refresh token by its UUID.
+     *
+     * @param token the UUID of the refresh token
+     * @return an Optional containing the refresh token details if found, or empty otherwise
+     */
     @Override
     public Optional<RefreshTokenDetails> findByToken(UUID token) {
         return basicRefreshTokenRepository.findByToken(token);
     }
 
+    /**
+     * Checks if the specified refresh token is valid (exists and not expired).
+     *
+     * @param token the UUID of the refresh token
+     * @return true if the token is valid, false otherwise
+     */
     @Override
     public boolean isValid(UUID token) {
         return findByToken(token)
@@ -80,11 +119,22 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .orElse(false);
     }
 
+    /**
+     * Revokes (deletes) the specified refresh token.
+     *
+     * @param token the UUID of the refresh token to revoke
+     */
     @Override
     public void revoke(UUID token) {
         basicRefreshTokenRepository.delete(token);
     }
 
+    /**
+     * Builds a new Token entity for the specified user with the configured expiration.
+     *
+     * @param user the user entity
+     * @return the built Token entity
+     */
     private Token buildToken(User user) {
         return Token.builder()
                 .id(UUID.randomUUID())
