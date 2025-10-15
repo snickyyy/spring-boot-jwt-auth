@@ -22,7 +22,7 @@ public interface RefreshTokenDetails {
      *
      * @return the user ID as an Integer, never {@code null}
      */
-    User getUser();
+    User getUser(); // todo: change to UserDetails from spring security
 
     /**
      * Returns the expiration timestamp of the refresh token.
