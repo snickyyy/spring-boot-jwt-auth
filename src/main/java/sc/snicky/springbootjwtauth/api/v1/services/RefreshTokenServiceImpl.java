@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenNotValid;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Setter
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final BasicRefreshTokenRepository basicRefreshTokenRepository;
@@ -79,7 +81,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      *
      * @param oldToken the UUID of the old refresh token
      * @return the new refresh token details
-     * @throws RefreshTokenNotValid if the old token is not found or invalid
+     * @throws RefreshTokenIsNotValid if the old token is not found or invalid
      */
     @Override
     @Transactional
@@ -91,7 +93,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 })
                 .orElseThrow(() -> {
                     log.error("Refresh token {} not found for rotation", oldToken);
-                    return new RefreshTokenNotValid("Refresh token is not valid");
+                    return new RefreshTokenIsNotValid("Refresh token is not valid");
                 });
     }
 
