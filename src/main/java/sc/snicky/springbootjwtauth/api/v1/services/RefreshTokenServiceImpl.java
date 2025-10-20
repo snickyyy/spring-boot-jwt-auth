@@ -10,7 +10,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
@@ -81,7 +81,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      *
      * @param oldToken the UUID of the old refresh token
      * @return the new refresh token details
-     * @throws RefreshTokenIsNotValid if the old token is not found or invalid
+     * @throws InvalidRefreshTokenException if the old token is not found or invalid
      */
     @Override
     @Transactional
@@ -93,7 +93,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 })
                 .orElseThrow(() -> {
                     log.error("Refresh token {} not found for rotation", oldToken);
-                    return new RefreshTokenIsNotValid("Refresh token is not valid");
+                    return new InvalidRefreshTokenException("Refresh token is not valid");
                 });
     }
 

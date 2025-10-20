@@ -13,7 +13,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
@@ -158,7 +158,7 @@ public class RefreshTokenServiceTest {
         when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.empty());
 
         assertThrows(
-                RefreshTokenIsNotValid.class,
+                InvalidRefreshTokenException.class,
                 () -> refreshTokenServiceTest.rotate(oldTokenId)
         );
     }
