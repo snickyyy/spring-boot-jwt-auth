@@ -2,7 +2,7 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,14 +14,14 @@ import java.util.UUID;
  */
 @Repository
 @RequiredArgsConstructor
-public class RedisTokenRepositoryImpl implements BasicTokenRepository { //todo add implementation
+public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
      * Saves the given token to Redis storage.
      *
      * @param token the token to save
      */
     @Override
-    public void save(Token token) {
+    public void save(RefreshTokenDetails token) {
 
     }
 
@@ -32,7 +32,7 @@ public class RedisTokenRepositoryImpl implements BasicTokenRepository { //todo a
      * @return an Optional containing the found token, or empty if not found
      */
     @Override
-    public Optional<Token> findByToken(UUID token) {
+    public Optional<RefreshTokenDetails> findByToken(UUID token) {
         return Optional.empty();
     }
 
