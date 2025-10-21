@@ -53,6 +53,7 @@ public class User extends BaseEntity<Integer> implements Serializable {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @Builder.Default
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
