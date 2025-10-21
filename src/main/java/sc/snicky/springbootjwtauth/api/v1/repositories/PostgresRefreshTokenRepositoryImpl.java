@@ -12,7 +12,6 @@ import java.util.UUID;
 /**
  * The implementation of the BasicRefreshTokenRepository interface for managing tokens in a PostgreSQL database.
  */
-@Repository
 @RequiredArgsConstructor
 public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
     /**
