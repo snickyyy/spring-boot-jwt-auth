@@ -1,7 +1,6 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 
 import java.util.Optional;
@@ -12,7 +11,6 @@ import java.util.UUID;
  * <p>
  * The actual implementation is not available yet and will be added in the future.
  */
-@Repository
 @RequiredArgsConstructor
 public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
