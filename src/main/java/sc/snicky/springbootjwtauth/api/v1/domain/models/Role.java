@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
