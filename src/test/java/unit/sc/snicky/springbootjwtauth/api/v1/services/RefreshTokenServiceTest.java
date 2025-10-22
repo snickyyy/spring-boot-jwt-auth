@@ -90,13 +90,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testIsValidWithSuccess() {
         var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
 
         var result = refreshTokenServiceTest.isValid(tokenId);
@@ -117,13 +111,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testIsValidWithTokenIsExpired() {
         var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         token.setExpiry(Instant.now().minusSeconds(1));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
 
@@ -176,13 +164,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testFindByTokenWithSuccess() {
         var tokenId = UUID.randomUUID();
-        var testToken = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var testToken = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(testToken));
 
         Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(tokenId);
@@ -203,10 +185,11 @@ public class RefreshTokenServiceTest {
     }
 
     private User buildUser() {
-        return User.builder()
+        var user = User.builder()
                 .email(TEST_EMAIL)
                 .password(TEST_PASSWORD)
-                .role(Role.builder().name(ERole.USER).build())
                 .build();
+        user.assignRole(Role.builder().name(ERole.USER).build());
+        return user;
     }
 }

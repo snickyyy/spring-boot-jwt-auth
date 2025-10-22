@@ -6,7 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
@@ -48,11 +50,12 @@ public class TokensManagerTest {
     }
 
     private User buildUser() {
-        return User.builder()
+        var user = User.builder()
                 .email(TEST_EMAIL)
                 .password(TEST_PASSWORD)
-
                 .build();
+        user.assignRole(Role.builder().name(ERole.USER).build());
+        return user;
     }
 
     private Token buildToken(User user) {
@@ -62,5 +65,4 @@ public class TokensManagerTest {
                 .exp(Instant.now().plusMillis(TEST_REFRESH_TOKEN_DURATION))
                 .build();
     }
-
 }
