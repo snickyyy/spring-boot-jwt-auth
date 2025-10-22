@@ -39,12 +39,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public RefreshTokenDetails generate(Integer userId) {
-        var user = jpaUserRepository.findById(userId).orElseThrow(
-                () -> {
-                    log.error("User with id {} not found", userId);
-                    return new UserNotFoundException("User not found");
-                }
-        );
+        var user = getUser(userId);
         var result = PostgresTokenAdaptor.ofToken(buildToken(user));
         basicRefreshTokenRepository.save(result);
         return result;
@@ -122,6 +117,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     /**
+     * Revokes (deletes) all refresh tokens for the user with the specified ID.
+     *
+     * @param userId the ID of the user whose tokens should be revoked
+     */
+    @Transactional(readOnly = true)
+    public void revokeAllTokensForUser(Integer userId) {
+        var user = getUser(userId);
+        basicRefreshTokenRepository.deleteAllByUserId(user.getId());
+    }
+
+
+    /**
      * Revokes (deletes) the specified refresh token.
      *
      * @param token the UUID of the refresh token to revoke
@@ -143,5 +150,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .user(user)
                 .exp(Instant.now().plusMillis(refreshTokenDurationMs))
                 .build();
+    }
+
+    private User getUser(Integer userId) {
+        return jpaUserRepository.findById(userId).orElseThrow(
+                () -> {
+                    log.error("User with id {} not found", userId);
+                    return new UserNotFoundException("User not found");
+                }
+        );
     }
 }
