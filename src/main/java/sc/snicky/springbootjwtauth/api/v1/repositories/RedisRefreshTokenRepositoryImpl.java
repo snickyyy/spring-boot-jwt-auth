@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.UUID;
  * <p>
  * The actual implementation is not available yet and will be added in the future.
  */
+@Repository
 @RequiredArgsConstructor
 public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
@@ -32,16 +34,6 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
     @Override
     public Optional<RefreshTokenDetails> findByToken(UUID token) {
         return Optional.empty();
-    }
-
-    /**
-     * Deletes all refresh tokens associated with the specified user ID from Redis.
-     *
-     * @param userId the ID of the user whose tokens should be deleted
-     */
-    @Override
-    public void deleteAllByUserId(Integer userId) {
-
     }
 
     /**

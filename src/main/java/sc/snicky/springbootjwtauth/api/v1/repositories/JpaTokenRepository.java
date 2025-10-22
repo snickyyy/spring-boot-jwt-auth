@@ -8,10 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface JpaTokenRepository extends JpaRepository<Token, UUID> {
-    /**
-     * Deletes all refresh tokens associated with the specified user ID from Database.
-     *
-     * @param userId the ID of the user whose tokens should be deleted
-     */
-    void deleteAllByUserId(Integer userId);
 }
