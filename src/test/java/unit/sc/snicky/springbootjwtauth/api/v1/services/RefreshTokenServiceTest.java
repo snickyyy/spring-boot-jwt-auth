@@ -152,6 +152,19 @@ public class RefreshTokenServiceTest {
     }
 
     @Test
+    void testRotateWithRefreshTokenIsExpired() {
+        var oldTokenId = UUID.randomUUID();
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
+        token.setExpiry(Instant.now().minusSeconds(1));
+        when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.of(token));
+
+        assertThrows(
+                InvalidRefreshTokenException.class,
+                () -> refreshTokenServiceTest.rotate(oldTokenId)
+        );
+    }
+
+    @Test
     void testRevokeTokenWithSuccess() {
         var tokenId = UUID.randomUUID();
         doNothing().when(basicRefreshTokenRepository).delete(tokenId);

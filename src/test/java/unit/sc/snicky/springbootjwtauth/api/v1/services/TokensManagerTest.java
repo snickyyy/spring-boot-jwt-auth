@@ -71,9 +71,6 @@ public class TokensManagerTest {
         verify(refreshTokenService).rotate(oldToken.getId());
     }
 
-    @Test
-    void revoke
-
     private User buildUser() {
         var user = User.builder()
                 .email(TEST_EMAIL)
