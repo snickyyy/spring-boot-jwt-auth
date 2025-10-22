@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -89,6 +90,26 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    /**
+     * Extracts user details from a JWT token.
+     *
+     * @param token The JWT token string
+     * @return UserDetails object containing username and authorities
+     */
+    @Override
+    public UserDetails extractUserDetails(String token) {
+        UserDetailsAdaptor detailsAdaptor = UserDetailsAdaptor.builder()
+                .username(extractUsername(token))
+                .password("N/A") // Password is not stored in token
+                .build();
+        detailsAdaptor.setGrantedAuthorities(
+                extractRoles(token).stream()
+                .map((erole) -> (GrantedAuthority) erole::name)
+                .toList()
+        );
+        return detailsAdaptor;
     }
 
     /**

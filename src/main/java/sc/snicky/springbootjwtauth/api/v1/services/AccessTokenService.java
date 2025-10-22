@@ -46,4 +46,12 @@ public interface AccessTokenService {
      * @return a set of extracted user roles
      */
     Set<ERole> extractRoles(String token);
+
+    /**
+     * Extracts user details from the provided JWT access token.
+     *
+     * @param token the JWT token from which to extract user details
+     * @return the extracted UserDetails
+     */
+    UserDetails extractUserDetails(String token);
 }
