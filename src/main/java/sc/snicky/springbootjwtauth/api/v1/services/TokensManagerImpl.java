@@ -46,27 +46,6 @@ public class TokensManagerImpl implements TokensManager {
         return buildTokenPair(accessToken, newRefreshToken);
     }
 
-    /**
-     * Revokes the specified refresh token.
-     *
-     * @param refreshToken the refresh token as a string
-     * @throws InvalidRefreshTokenException if the token format is invalid
-     */
-    @Override
-    public void revokeRefreshToken(String refreshToken) {
-        refreshTokenService.revoke(convertToUUID(refreshToken));
-    }
-
-    /**
-     * Revokes all refresh tokens for the specified user.
-     *
-     * @param userId the ID of the user
-     */
-    @Override
-    public void revokeAllTokensForUser(Integer userId) {
-        refreshTokenService.revokeAllTokensForUser(userId);
-    }
-
     private UUID convertToUUID(String token) {
         try {
             return UUID.fromString(token);

@@ -24,16 +24,4 @@ public interface TokensManager {
      * @throws InvalidRefreshTokenException if the token is not found, expired, or has already been used.
      */
     TokenPair refreshTokens(String refreshToken);
-    /**
-     * Revokes a specific refresh token, effectively logging out a single session.
-     *
-     * @param refreshToken The token to revoke.
-     */
-    void revokeRefreshToken(String refreshToken);
-    /**
-     * Revokes all active refresh tokens for a user, logging them out from all devices.
-     *
-     * @param userId The ID of the user.
-     */
-    void revokeAllTokensForUser(Integer userId);
 }
