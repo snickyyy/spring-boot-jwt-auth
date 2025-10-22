@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidAccessTokenException;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -93,13 +94,15 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     }
 
     /**
-     * Extracts user details from a JWT token.
+     * Extracts UserDetails from a JWT access token after validating its signature and expiration.
+     * This is the primary method for authenticating a user from a token.
      *
-     * @param token The JWT token string
-     * @return UserDetails object containing username and authorities
+     * @param token The JWT access token.
+     * @return UserDetails object populated with claims from the token.
+     * @throws InvalidAccessTokenException if the token is malformed, expired, or has an invalid signature.
      */
     @Override
-    public UserDetails extractUserDetails(String token) {
+    public UserDetails extractUserDetails(String token) { //todo add tests
         UserDetailsAdaptor detailsAdaptor = UserDetailsAdaptor.builder()
                 .username(extractUsername(token))
                 .password("N/A") // Password is not stored in token
