@@ -83,6 +83,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshTokenDetails rotate(UUID oldToken) {
         return basicRefreshTokenRepository.findByToken(oldToken)
                 .map(t -> {
+                    if (t.getExpiry().isBefore(Instant.now())) {
+                        log.error("Refresh token {} has expired and cannot be rotated", oldToken);
+                        throw new InvalidRefreshTokenException("Refresh token has expired");
+                    }
                     revoke(oldToken);
                     return generate(t.getUser(), t.getExpiry());
                 })

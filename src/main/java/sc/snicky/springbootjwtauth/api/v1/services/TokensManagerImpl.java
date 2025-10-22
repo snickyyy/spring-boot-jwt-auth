@@ -71,7 +71,7 @@ public class TokensManagerImpl implements TokensManager {
         try {
             return UUID.fromString(token);
         } catch (IllegalArgumentException ex) {
-            log.error("Invalid token format: {}", token);
+            log.error("Invalid token format");
             throw new InvalidRefreshTokenException("Invalid token format");
         }
     }
