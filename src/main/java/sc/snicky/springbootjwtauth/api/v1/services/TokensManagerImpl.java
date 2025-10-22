@@ -17,6 +17,12 @@ public class TokensManagerImpl implements TokensManager {
     private final RefreshTokenService refreshTokenService;
     private final AccessTokenService accessTokenService;
 
+    /**
+     * Generates a new pair of access and refresh tokens for the specified user.
+     *
+     * @param userId the ID of the user
+     * @return a {@link TokenPair} containing the access and refresh tokens
+     */
     @Override
     public TokenPair generateTokens(Integer userId) {
         var refreshToken = refreshTokenService.generate(userId);
@@ -24,6 +30,13 @@ public class TokensManagerImpl implements TokensManager {
         return buildTokenPair(accessToken, refreshToken);
     }
 
+    /**
+     * Refreshes the access and refresh tokens using the provided refresh token.
+     *
+     * @param refreshToken the refresh token as a string
+     * @return a new {@link TokenPair} containing refreshed tokens
+     * @throws InvalidRefreshTokenException if the token format is invalid
+     */
     @Override
     public TokenPair refreshTokens(String refreshToken) {
         var uuidRefreshToken = convertToUUID(refreshToken);
@@ -33,11 +46,22 @@ public class TokensManagerImpl implements TokensManager {
         return buildTokenPair(accessToken, newRefreshToken);
     }
 
+    /**
+     * Revokes the specified refresh token.
+     *
+     * @param refreshToken the refresh token as a string
+     * @throws InvalidRefreshTokenException if the token format is invalid
+     */
     @Override
     public void revokeRefreshToken(String refreshToken) {
         refreshTokenService.revoke(convertToUUID(refreshToken));
     }
 
+    /**
+     * Revokes all refresh tokens for the specified user.
+     *
+     * @param userId the ID of the user
+     */
     @Override
     public void revokeAllTokensForUser(Integer userId) {
         refreshTokenService.revokeAllTokensForUser(userId);
