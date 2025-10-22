@@ -14,11 +14,13 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
 import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenServiceImpl;
 import sc.snicky.springbootjwtauth.api.v1.services.TokensManagerImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.UserService;
 
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Tag("unit")
@@ -34,9 +36,6 @@ public class TokensManagerTest {
     @Mock
     private AccessTokenServiceImpl accessTokenService;
 
-    @Mock
-    private UserService userService;
-
     @InjectMocks
     private TokensManagerImpl tokensManager;
 
@@ -45,9 +44,35 @@ public class TokensManagerTest {
     void generateTokensWithSuccess() {
         var user = buildUser();
         user.setId(1);
-        when(userService.getUserById(user.getId())).thenReturn(user);
-        when(refreshTokenService.generate(1)).thenReturn(PostgresTokenAdaptor.ofToken(buildToken(user)));
+        var token = PostgresTokenAdaptor.ofToken(buildToken(user));
+        when(refreshTokenService.generate(1)).thenReturn(token);
+
+        var result = tokensManager.generateTokens(1);
+
+        assertNotNull(result);
+        assertEquals(token.getToken().toString(), result.refreshToken());
+
+        verify(refreshTokenService).generate(1);
     }
+
+    @Test
+    void refreshTokensWithSuccess() {
+        var user = buildUser();
+        user.setId(1);
+        var oldToken = buildToken(user);
+        var newToken = PostgresTokenAdaptor.ofToken(buildToken(user));
+        when(refreshTokenService.rotate(oldToken.getId())).thenReturn(newToken);
+
+        var result = tokensManager.refreshTokens(oldToken.getId().toString());
+
+        assertNotNull(result);
+        assertEquals(newToken.getToken().toString(), result.refreshToken());
+
+        verify(refreshTokenService).rotate(oldToken.getId());
+    }
+
+    @Test
+    void revoke
 
     private User buildUser() {
         var user = User.builder()

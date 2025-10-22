@@ -37,7 +37,7 @@ public class Token extends BaseEntity<UUID> implements Serializable {
      */
     @Id
     @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
+    private UUID id; // save in hashed value
 
     /**
      * The user associated with the token.
