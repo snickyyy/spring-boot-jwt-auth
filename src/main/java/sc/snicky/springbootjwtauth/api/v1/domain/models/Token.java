@@ -37,14 +37,14 @@ public class Token extends BaseEntity<UUID> implements Serializable {
      */
     @Id
     @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
+    private UUID id; // save in hashed value
 
     /**
      * The user associated with the token.
      * Many tokens can belong to one user.
      * On user deletion, all associated tokens are also deleted (cascade).
      */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY) // todo change to ManyToOne if multiple tokens per user are needed (any device sessions)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")
     @EqualsAndHashCode.Exclude

@@ -44,4 +44,11 @@ public interface RefreshTokenService {
      * @param token the UUID of the refresh token to revoke
      */
     void revoke(UUID token);
+
+    /**
+     * Revokes all refresh tokens for the user with the specified ID.
+     *
+     * @param userId the ID of the user whose tokens should be revoked
+     */
+    void revokeAllTokensForUser(Integer userId);
 }

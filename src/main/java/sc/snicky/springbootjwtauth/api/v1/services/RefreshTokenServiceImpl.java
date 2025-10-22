@@ -10,7 +10,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
@@ -39,12 +39,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public RefreshTokenDetails generate(Integer userId) {
-        var user = jpaUserRepository.findById(userId).orElseThrow(
-                () -> {
-                    log.error("User with id {} not found", userId);
-                    return new UserNotFoundException("User not found");
-                }
-        );
+        var user = getUser(userId);
         var result = PostgresTokenAdaptor.ofToken(buildToken(user));
         basicRefreshTokenRepository.save(result);
         return result;
@@ -81,19 +76,23 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      *
      * @param oldToken the UUID of the old refresh token
      * @return the new refresh token details
-     * @throws RefreshTokenIsNotValid if the old token is not found or invalid
+     * @throws InvalidRefreshTokenException if the old token is not found or invalid
      */
     @Override
     @Transactional
     public RefreshTokenDetails rotate(UUID oldToken) {
         return basicRefreshTokenRepository.findByToken(oldToken)
                 .map(t -> {
+                    if (t.getExpiry().isBefore(Instant.now())) {
+                        log.error("Refresh token {} has expired and cannot be rotated", oldToken);
+                        throw new InvalidRefreshTokenException("Refresh token has expired");
+                    }
                     revoke(oldToken);
                     return generate(t.getUser(), t.getExpiry());
                 })
                 .orElseThrow(() -> {
                     log.error("Refresh token {} not found for rotation", oldToken);
-                    return new RefreshTokenIsNotValid("Refresh token is not valid");
+                    return new InvalidRefreshTokenException("Refresh token is not valid");
                 });
     }
 
@@ -122,6 +121,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     /**
+     * Revokes (deletes) all refresh tokens for the user with the specified ID.
+     *
+     * @param userId the ID of the user whose tokens should be revoked
+     */
+    @Transactional(readOnly = true)
+    public void revokeAllTokensForUser(Integer userId) {
+        var user = getUser(userId);
+        basicRefreshTokenRepository.deleteAllByUserId(user.getId());
+    }
+
+
+    /**
      * Revokes (deletes) the specified refresh token.
      *
      * @param token the UUID of the refresh token to revoke
@@ -143,5 +154,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .user(user)
                 .exp(Instant.now().plusMillis(refreshTokenDurationMs))
                 .build();
+    }
+
+    private User getUser(Integer userId) {
+        return jpaUserRepository.findById(userId).orElseThrow(
+                () -> {
+                    log.error("User with id {} not found", userId);
+                    return new UserNotFoundException("User not found");
+                }
+        );
     }
 }

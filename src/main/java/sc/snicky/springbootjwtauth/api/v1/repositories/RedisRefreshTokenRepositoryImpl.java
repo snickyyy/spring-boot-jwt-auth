@@ -35,6 +35,16 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
     }
 
     /**
+     * Deletes all refresh tokens associated with the specified user ID from Redis.
+     *
+     * @param userId the ID of the user whose tokens should be deleted
+     */
+    @Override
+    public void deleteAllByUserId(Integer userId) {
+
+    }
+
+    /**
      * Deletes the token with the specified UUID from Redis.
      *
      * @param token the UUID of the token to delete

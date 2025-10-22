@@ -26,7 +26,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Entity(name = "users")
 public class User extends BaseEntity<Integer> implements Serializable {
     /**
@@ -49,9 +49,11 @@ public class User extends BaseEntity<Integer> implements Serializable {
     /**
      * User roles.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

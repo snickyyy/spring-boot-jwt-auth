@@ -13,7 +13,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
@@ -90,13 +90,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testIsValidWithSuccess() {
         var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
 
         var result = refreshTokenServiceTest.isValid(tokenId);
@@ -117,13 +111,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testIsValidWithTokenIsExpired() {
         var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         token.setExpiry(Instant.now().minusSeconds(1));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
 
@@ -158,7 +146,20 @@ public class RefreshTokenServiceTest {
         when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.empty());
 
         assertThrows(
-                RefreshTokenIsNotValid.class,
+                InvalidRefreshTokenException.class,
+                () -> refreshTokenServiceTest.rotate(oldTokenId)
+        );
+    }
+
+    @Test
+    void testRotateWithRefreshTokenIsExpired() {
+        var oldTokenId = UUID.randomUUID();
+        var token = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
+        token.setExpiry(Instant.now().minusSeconds(1));
+        when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.of(token));
+
+        assertThrows(
+                InvalidRefreshTokenException.class,
                 () -> refreshTokenServiceTest.rotate(oldTokenId)
         );
     }
@@ -176,13 +177,7 @@ public class RefreshTokenServiceTest {
     @Test
     void testFindByTokenWithSuccess() {
         var tokenId = UUID.randomUUID();
-        var testToken = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
+        var testToken = PostgresTokenAdaptor.ofToken(buildToken(buildUser()));
         when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(testToken));
 
         Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(tokenId);
@@ -203,10 +198,11 @@ public class RefreshTokenServiceTest {
     }
 
     private User buildUser() {
-        return User.builder()
+        var user = User.builder()
                 .email(TEST_EMAIL)
                 .password(TEST_PASSWORD)
-                .role(Role.builder().name(ERole.USER).build())
                 .build();
+        user.assignRole(Role.builder().name(ERole.USER).build());
+        return user;
     }
 }

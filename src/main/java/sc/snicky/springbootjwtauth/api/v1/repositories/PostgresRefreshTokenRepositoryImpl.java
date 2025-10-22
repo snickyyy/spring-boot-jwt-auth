@@ -1,7 +1,6 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
@@ -54,5 +53,15 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
     @Override
     public void delete(UUID token) {
         jpaTokenRepository.deleteById(token);
+    }
+
+    /**
+     * Deletes all tokens associated with a specific user ID.
+     *
+     * @param userId the ID of the user whose tokens are to be deleted
+     */
+    @Override
+    public void deleteAllByUserId(Integer userId) {
+        jpaTokenRepository.deleteAllByUserId(userId);
     }
 }
