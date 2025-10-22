@@ -32,11 +32,4 @@ public interface BasicRefreshTokenRepository {
      * @param token the token
      */
     void delete(UUID token);
-
-    /**
-     * Deletes all refresh tokens associated with the specified user ID from storage.
-     *
-     * @param userId the ID of the user whose tokens should be deleted
-     */
-    void deleteAllByUserId(Integer userId);
 }

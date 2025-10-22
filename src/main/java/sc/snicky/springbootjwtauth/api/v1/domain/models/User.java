@@ -2,10 +2,8 @@ package sc.snicky.springbootjwtauth.api.v1.domain.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,8 +15,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -26,7 +22,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @Entity(name = "users")
 public class User extends BaseEntity<Integer> implements Serializable {
     /**
@@ -47,24 +43,10 @@ public class User extends BaseEntity<Integer> implements Serializable {
     private String password;
 
     /**
-     * User roles.
+     * User role.
      */
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
-
-    /**
-     * Adds a role to the user's set of roles.
-     *
-     * @param role the role to add
-     */
-    public void assignRole(Role role) {
-        this.roles.add(role);
-    }
+    @JoinColumn(name = "role_id")
+    private Role role;
 }

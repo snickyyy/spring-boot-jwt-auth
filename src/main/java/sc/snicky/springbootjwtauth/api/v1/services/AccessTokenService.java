@@ -2,7 +2,6 @@ package sc.snicky.springbootjwtauth.api.v1.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidAccessTokenException;
 
 import java.time.Instant;
 import java.util.Set;
@@ -47,14 +46,4 @@ public interface AccessTokenService {
      * @return a set of extracted user roles
      */
     Set<ERole> extractRoles(String token);
-
-    /**
-     * Extracts UserDetails from a JWT access token after validating its signature and expiration.
-     * This is the primary method for authenticating a user from a token.
-     *
-     * @param token The JWT access token.
-     * @return UserDetails object populated with claims from the token.
-     * @throws InvalidAccessTokenException if the token is malformed, expired, or has an invalid signature.
-     */
-    UserDetails extractUserDetails(String token);
 }
