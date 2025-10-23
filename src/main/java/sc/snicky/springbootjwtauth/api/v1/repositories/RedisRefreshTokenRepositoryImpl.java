@@ -1,10 +1,9 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repository implementation for storing tokens in Redis.
@@ -14,43 +13,43 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
-     * Saves the given token to Redis storage.
+     * Saves a refresh token to Redis.
      *
-     * @param token the token to save
+     * @param token the refresh token to save
      */
     @Override
-    public void save(RefreshTokenDetails token) {
+    public void save(BasicRefreshToken token) {
 
     }
 
     /**
-     * Finds a token in Redis by its UUID.
+     * Finds a refresh token in Redis by its token string.
      *
-     * @param token the UUID of the token to find
-     * @return an Optional containing the found token, or empty if not found
+     * @param token the token string to search for
+     * @return an Optional containing the found refresh token, or empty if not found
      */
     @Override
-    public Optional<RefreshTokenDetails> findByToken(UUID token) {
+    public Optional<BasicRefreshToken> findByToken(String token) {
         return Optional.empty();
     }
 
     /**
-     * Deletes all refresh tokens associated with the specified user ID from Redis.
+     * Deletes a refresh token from Redis by its token string.
      *
-     * @param userId the ID of the user whose tokens should be deleted
+     * @param token the token string to delete
      */
     @Override
-    public void deleteAllByUserId(Integer userId) {
+    public void delete(String token) {
 
     }
 
     /**
-     * Deletes the token with the specified UUID from Redis.
+     * Deletes all refresh tokens in Redis associated with a specific user ID.
      *
-     * @param token the UUID of the token to delete
+     * @param userId the user ID whose tokens should be deleted
      */
     @Override
-    public void delete(UUID token) {
+    public void deleteAllByUserId(Integer userId) {
 
     }
 }
