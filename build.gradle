@@ -15,7 +15,8 @@ description = 'spring-boot-jwt-auth'
 
 ext {
     versions = [
-            jsonwebtoken: "0.12.5"
+            jsonwebtoken: "0.12.5",
+            mapstruct  : "1.6.3"
     ]
 }
 
@@ -65,6 +66,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation "org.mapstruct:mapstruct:${versions.mapstruct}"
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation "io.jsonwebtoken:jjwt-api:${versions.jsonwebtoken}"
@@ -87,6 +89,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${versions.mapstruct}"
 
     runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
