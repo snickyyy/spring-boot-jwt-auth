@@ -54,7 +54,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         var token = UUID.randomUUID();
         var refreshToken = buildToken(token, user);
         basicRefreshTokenRepository.save(refreshToken);
-        return JpaRefreshTokenDetailsAdaptor.builder()
+        return JpaRefreshTokenDetailsAdaptor.builder() // todo поменять и поставить везде интерфейс базовый
                 .token(token)
                 .user(user)
                 .expiry(refreshToken.getExpiresAt())

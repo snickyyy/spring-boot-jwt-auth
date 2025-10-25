@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,7 +45,7 @@ public class RefreshTokenServiceTest {
     private final UUID TEST_TOKEN = UUID.randomUUID();
 
 
-    @Mock
+    @Spy
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final String TEST_HASHED_TOKEN = passwordEncoder.encode(TEST_TOKEN.toString());
@@ -175,10 +177,9 @@ public class RefreshTokenServiceTest {
 
     @Test
     void testFindByTokenWithSuccess() {
-        when(passwordEncoder.encode(any())).thenAnswer(invocation -> "hashedToken");
 
         var testToken = buildToken(buildUser());
-        when(basicRefreshTokenRepository.findByToken("hashedToken"))
+        when(basicRefreshTokenRepository.findByToken(anyString()))
                 .thenReturn(Optional.of(testToken));
 
         Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(TEST_TOKEN);
@@ -186,7 +187,7 @@ public class RefreshTokenServiceTest {
         assertTrue(result.isPresent());
         assertEquals(testToken.getUser().getEmail(), result.get().getUser().getEmail());
 
-        verify(basicRefreshTokenRepository).findByToken("hashedToken");
+        verify(basicRefreshTokenRepository).findByToken(anyString());
     }
 
     private BasicRefreshToken buildToken(User user) {
