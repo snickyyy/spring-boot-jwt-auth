@@ -1,12 +1,10 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
+import sc.snicky.springbootjwtauth.api.v1.mappers.JpaRefreshTokenMapper;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The implementation of the BasicRefreshTokenRepository interface for managing tokens in a PostgreSQL database.
@@ -16,7 +14,8 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
     /**
      * JPA token repository for database operations.
      */
-    private final JpaTokenRepository jpaTokenRepository;
+    private final JpaRefreshTokenRepository jpaRefreshTokenRepository;
+    private final JpaRefreshTokenMapper jpaRefreshTokenMapper;
 
     /**
      * Saves the provided token to the database.
@@ -24,14 +23,9 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      * @param token the token to save
      */
     @Override
-    public void save(RefreshTokenDetails token) {
-        var entityToken = Token.builder()
-                .id(token.getToken())
-                .user(token.getUser())
-                .exp(token.getExpiry())
-                .build();
-        entityToken.setCreatedAt(token.getCreatedAt());
-        jpaTokenRepository.save(entityToken);
+    public void save(BasicRefreshToken token) {
+        var entityToken = jpaRefreshTokenMapper.toJpaRefreshToken(token);
+        jpaRefreshTokenRepository.save(entityToken);
     }
 
     /**
@@ -41,8 +35,8 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      * @return an Optional containing the found token, or empty if not found
      */
     @Override
-    public Optional<RefreshTokenDetails> findByToken(UUID token) {
-        return jpaTokenRepository.findById(token).map(PostgresTokenAdaptor::ofToken);
+    public Optional<BasicRefreshToken> findByToken(String token) {
+        return jpaRefreshTokenRepository.findById(token).map(jpaRefreshTokenMapper::toBasicRefreshToken);
     }
 
     /**
@@ -51,8 +45,8 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      * @param token the UUID of the token to delete
      */
     @Override
-    public void delete(UUID token) {
-        jpaTokenRepository.deleteById(token);
+    public void delete(String token) {
+        jpaRefreshTokenRepository.deleteById(token);
     }
 
     /**
@@ -62,6 +56,6 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      */
     @Override
     public void deleteAllByUserId(Integer userId) {
-        jpaTokenRepository.deleteAllByUserId(userId);
+        jpaRefreshTokenRepository.deleteAllByUserId(userId);
     }
 }

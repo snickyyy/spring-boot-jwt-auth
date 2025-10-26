@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.JpaRefreshTokenDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @Setter
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
+    private final PasswordEncoder passwordEncoder;
     private final BasicRefreshTokenRepository basicRefreshTokenRepository;
     @Value("${app.auth.tokens.expiration.refresh:604800000}")
     private Long refreshTokenDurationMs;
@@ -39,10 +41,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public RefreshTokenDetails generate(Integer userId) {
-        var user = getUser(userId);
-        var result = PostgresTokenAdaptor.ofToken(buildToken(user));
-        basicRefreshTokenRepository.save(result);
-        return result;
+        return generate(getUser(userId));
     }
 
     /**
@@ -52,9 +51,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * @return the generated refresh token details
      */
     public RefreshTokenDetails generate(User user) {
-        var result = PostgresTokenAdaptor.ofToken(buildToken(user));
-        basicRefreshTokenRepository.save(result);
-        return result;
+        var token = UUID.randomUUID();
+        var refreshToken = buildToken(token, user);
+        basicRefreshTokenRepository.save(refreshToken);
+        return JpaRefreshTokenDetailsAdaptor.builder() // todo поменять и поставить везде интерфейс базовый
+                .token(token)
+                .user(user)
+                .expiry(refreshToken.getExpiresAt())
+                .build();
     }
 
     /**
@@ -65,10 +69,15 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * @return the generated refresh token details
      */
     public RefreshTokenDetails generate(User user, Instant expiration) {
-        var result = PostgresTokenAdaptor.ofToken(buildToken(user));
-        result.setExpiry(expiration);
-        basicRefreshTokenRepository.save(result);
-        return result;
+        var token = UUID.randomUUID();
+        var refreshToken = buildToken(token, user);
+        refreshToken.setExpiresAt(expiration);
+        basicRefreshTokenRepository.save(refreshToken);
+        return JpaRefreshTokenDetailsAdaptor.builder()
+                .token(token)
+                .user(user)
+                .expiry(refreshToken.getExpiresAt())
+                .build();
     }
 
     /**
@@ -81,14 +90,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshTokenDetails rotate(UUID oldToken) {
-        return basicRefreshTokenRepository.findByToken(oldToken)
+        return basicRefreshTokenRepository.findByToken(passwordEncoder.encode(oldToken.toString()))
                 .map(t -> {
-                    if (t.getExpiry().isBefore(Instant.now())) {
+                    if (t.getExpiresAt().isBefore(Instant.now())) {
                         log.error("Refresh token {} has expired and cannot be rotated", oldToken);
                         throw new InvalidRefreshTokenException("Refresh token has expired");
                     }
                     revoke(oldToken);
-                    return generate(t.getUser(), t.getExpiry());
+                    return generate(t.getUser(), t.getExpiresAt());
                 })
                 .orElseThrow(() -> {
                     log.error("Refresh token {} not found for rotation", oldToken);
@@ -104,7 +113,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public Optional<RefreshTokenDetails> findByToken(UUID token) {
-        return basicRefreshTokenRepository.findByToken(token);
+        return basicRefreshTokenRepository.findByToken(passwordEncoder.encode(token.toString()))
+                .map(result -> JpaRefreshTokenDetailsAdaptor.builder()
+                        .token(token)
+                        .user(result.getUser())
+                        .expiry(result.getExpiresAt())
+                        .createdAt(result.getCreatedAt())
+                        .build());
     }
 
     /**
@@ -139,20 +154,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public void revoke(UUID token) {
-        basicRefreshTokenRepository.delete(token);
+        basicRefreshTokenRepository.delete(passwordEncoder.encode(token.toString()));
     }
 
     /**
      * Builds a new Token entity for the specified user with the configured expiration.
      *
+     * @param token the UUID of the token
      * @param user the user entity
      * @return the built Token entity
      */
-    private Token buildToken(User user) {
-        return Token.builder()
-                .id(UUID.randomUUID())
+    private BasicRefreshToken buildToken(UUID token, User user) {
+        return BasicRefreshToken.builder()
+                .token(passwordEncoder.encode(token.toString()))
                 .user(user)
-                .exp(Instant.now().plusMillis(refreshTokenDurationMs))
+                .expiresAt(Instant.now().plusMillis(refreshTokenDurationMs))
                 .build();
     }
 
