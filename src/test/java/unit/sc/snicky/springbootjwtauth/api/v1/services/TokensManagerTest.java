@@ -71,7 +71,7 @@ public class TokensManagerTest {
         var result = tokensManager.refreshTokens(TEST_TOKEN.toString());
 
         assertNotNull(result);
-        assertTrue(passwordEncoder.matches(result.refreshToken(),newToken.getToken()));
+        assertTrue(passwordEncoder.matches(result.refreshToken(), newToken.getToken()));
 
         verify(refreshTokenService).rotate(TEST_TOKEN);
     }

@@ -39,8 +39,8 @@ import static org.mockito.Mockito.when;
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 public class RefreshTokenServiceTest {
-    private final String TEST_EMAIL = "testuser@test.te";
-    private final String TEST_PASSWORD = "testpassword";
+    private static final String TEST_EMAIL = "testuser@test.te";
+    private static final String TEST_PASSWORD = "testpassword";
     private final Long TEST_REFRESH_TOKEN_DURATION = 9000000L;
     private final UUID TEST_TOKEN = UUID.randomUUID();
 

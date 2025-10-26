@@ -15,13 +15,13 @@ public class TokenRepositoryConfig {
      * Activated when the property `app.auth.tokens.refresh.db` is set to `postgres`.
      *
      * @param mapper                    the JPA token mapper dependency
-     * @param jpaRefreshTokenRepository the JPA token repository dependency
+     * @param repo the JPA token repository dependency
      * @return a PostgresTokenRepositoryImpl instance
      */
     @Bean
     @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "postgres")
-    public BasicRefreshTokenRepository postgresTokenRepository(JpaRefreshTokenMapper mapper, JpaRefreshTokenRepository jpaRefreshTokenRepository) {
-        return new PostgresRefreshTokenRepositoryImpl(jpaRefreshTokenRepository, mapper);
+    public BasicRefreshTokenRepository postgresTokenRepository(JpaRefreshTokenMapper mapper, JpaRefreshTokenRepository repo) {
+        return new PostgresRefreshTokenRepositoryImpl(repo, mapper);
     }
 
     /**
