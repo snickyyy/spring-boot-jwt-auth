@@ -10,7 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.JpaRefreshTokenDetailsAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
@@ -51,7 +51,7 @@ public class TokensManagerTest {
         var user = buildUser();
         user.setId(1);
         var token = buildToken(user);
-        when(refreshTokenService.generate(1)).thenReturn(JpaRefreshTokenDetailsAdaptor.ofToken(TEST_TOKEN, token));
+        when(refreshTokenService.generate(1)).thenReturn(RefreshTokenDetailsAdaptor.ofToken(TEST_TOKEN, token));
 
         var result = tokensManager.generateTokens(1);
 
@@ -66,7 +66,7 @@ public class TokensManagerTest {
         var user = buildUser();
         user.setId(1);
         var newToken = buildToken(user);
-        when(refreshTokenService.rotate(TEST_TOKEN)).thenReturn(JpaRefreshTokenDetailsAdaptor.ofToken(TEST_TOKEN, newToken));
+        when(refreshTokenService.rotate(TEST_TOKEN)).thenReturn(RefreshTokenDetailsAdaptor.ofToken(TEST_TOKEN, newToken));
 
         var result = tokensManager.refreshTokens(TEST_TOKEN.toString());
 

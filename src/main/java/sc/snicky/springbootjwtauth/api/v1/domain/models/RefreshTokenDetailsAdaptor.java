@@ -10,21 +10,21 @@ import java.util.UUID;
 @Data
 @Builder
 @AllArgsConstructor
-public class JpaRefreshTokenDetailsAdaptor implements RefreshTokenDetails {
+public class RefreshTokenDetailsAdaptor implements RefreshTokenDetails {
     private UUID token;
     private User user;
     private Instant expiry;
     private Instant createdAt;
 
     /**
-     * Creates a new {@link JpaRefreshTokenDetailsAdaptor} instance from the given token and basic refresh token.
+     * Creates a new {@link RefreshTokenDetailsAdaptor} instance from the given token and basic refresh token.
      *
      * @param token the refresh token UUID
      * @param basicRefreshToken the basic refresh token containing user and expiry details
-     * @return a new {@code JpaRefreshTokenDetailsAdaptor} instance
+     * @return a new {@code RefreshTokenDetailsAdaptor} instance
      */
-    public static JpaRefreshTokenDetailsAdaptor ofToken(UUID token, BasicRefreshToken basicRefreshToken) {
-        return JpaRefreshTokenDetailsAdaptor.builder()
+    public static RefreshTokenDetailsAdaptor ofToken(UUID token, BasicRefreshToken basicRefreshToken) {
+        return RefreshTokenDetailsAdaptor.builder()
                 .token(token)
                 .user(basicRefreshToken.getUser())
                 .expiry(basicRefreshToken.getExpiresAt())

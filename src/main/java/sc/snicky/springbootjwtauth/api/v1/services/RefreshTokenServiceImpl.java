@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.JpaRefreshTokenDetailsAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
@@ -54,7 +54,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         var token = UUID.randomUUID();
         var refreshToken = buildToken(token, user);
         basicRefreshTokenRepository.save(refreshToken);
-        return JpaRefreshTokenDetailsAdaptor.builder() // todo поменять и поставить везде интерфейс базовый
+        return RefreshTokenDetailsAdaptor.builder() // todo поменять и поставить везде интерфейс базовый
                 .token(token)
                 .user(user)
                 .expiry(refreshToken.getExpiresAt())
@@ -73,7 +73,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         var refreshToken = buildToken(token, user);
         refreshToken.setExpiresAt(expiration);
         basicRefreshTokenRepository.save(refreshToken);
-        return JpaRefreshTokenDetailsAdaptor.builder()
+        return RefreshTokenDetailsAdaptor.builder()
                 .token(token)
                 .user(user)
                 .expiry(refreshToken.getExpiresAt())
@@ -114,7 +114,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public Optional<RefreshTokenDetails> findByToken(UUID token) {
         return basicRefreshTokenRepository.findByToken(passwordEncoder.encode(token.toString()))
-                .map(result -> JpaRefreshTokenDetailsAdaptor.builder()
+                .map(result -> RefreshTokenDetailsAdaptor.builder()
                         .token(token)
                         .user(result.getUser())
                         .expiry(result.getExpiresAt())
