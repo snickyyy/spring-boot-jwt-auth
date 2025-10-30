@@ -93,14 +93,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return basicRefreshTokenRepository.findByToken(new ProtectedToken(TokenUtils.hashToken(oldToken)))
                 .map(t -> {
                     if (t.getExpiresAt().isBefore(Instant.now())) {
-                        log.error("Refresh token {} has expired and cannot be rotated", oldToken);
+                        log.error("Refresh token {} has expired and cannot be rotated", TokenUtils.hashToken(oldToken));
                         throw new InvalidRefreshTokenException("Refresh token has expired");
                     }
                     revoke(oldToken);
                     return generate(t.getUser(), t.getExpiresAt());
                 })
                 .orElseThrow(() -> {
-                    log.error("Refresh token {} not found for rotation", oldToken);
+                    log.error("Refresh token {} not found for rotation", TokenUtils.hashToken(oldToken));
                     return new InvalidRefreshTokenException("Refresh token is not valid");
                 });
     }

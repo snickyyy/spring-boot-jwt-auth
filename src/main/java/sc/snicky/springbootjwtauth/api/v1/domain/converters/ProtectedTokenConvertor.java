@@ -8,11 +8,11 @@ import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 public class ProtectedTokenConvertor implements AttributeConverter<ProtectedToken, String> {
     @Override
     public String convertToDatabaseColumn(ProtectedToken attribute) {
-        return attribute.getToken();
+        return attribute != null ? attribute.getToken() : null;
     }
 
     @Override
     public ProtectedToken convertToEntityAttribute(String dbData) {
-        return new ProtectedToken(dbData);
+        return dbData != null ? new ProtectedToken(dbData) : null;
     }
 }
