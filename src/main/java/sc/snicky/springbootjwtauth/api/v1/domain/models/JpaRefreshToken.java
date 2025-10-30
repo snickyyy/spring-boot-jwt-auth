@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -32,12 +34,20 @@ import java.time.Instant;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "tokens")
-public class JpaRefreshToken extends BaseEntity<String> implements Serializable { // todo add device and last active fields
+public class JpaRefreshToken extends BaseEntity<Integer> implements Serializable { // todo add device and last active fields
     /**
      * The unique identifier of the token.
      */
     @Id
     @Column(name = "id", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    /**
+     * The token string.
+     * Cannot be null and must be unique.
+     */
+    @Column(name = "token", nullable = false, unique = true)
     @Convert(converter = ProtectedTokenConvertor.class)
     private ProtectedToken token;
 
