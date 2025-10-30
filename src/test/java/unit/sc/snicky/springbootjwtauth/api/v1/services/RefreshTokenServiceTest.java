@@ -120,6 +120,19 @@ public class RefreshTokenServiceTest {
     }
 
     @Test
+    void testIsValidWithTokenIsNotActive() {
+        var token = buildToken(buildUser());
+        token.setIsActive(false);
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN)).thenReturn(Optional.of(token));
+
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
+
+        assertFalse(result);
+
+        verify(basicRefreshTokenRepository).findByToken(TEST_PROTECTED_TOKEN);
+    }
+
+    @Test
     void testRotateWithSuccess() {
         var testUser = buildUser();
         var oldToken = buildToken(testUser);
