@@ -46,7 +46,7 @@ public class TokensManagerImpl implements TokensManager {
     private TokenPair buildTokenPair(String accessToken, RefreshTokenDetails refreshToken) {
         return TokenPair.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken().toString())
+                .refreshToken(refreshToken.getToken().getToken())
                 .build();
     }
 }
