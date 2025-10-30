@@ -2,6 +2,7 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import org.springframework.stereotype.Repository;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 
 import java.util.Optional;
 
@@ -23,14 +24,14 @@ public interface BasicRefreshTokenRepository {
      * @param token the hashed value of token
      * @return the optional
      */
-    Optional<BasicRefreshToken> findByToken(String token);
+    Optional<BasicRefreshToken> findByToken(ProtectedToken token);
 
     /**
      * Delete token.
      *
      * @param token the hashed value of token
      */
-    void delete(String token);
+    void delete(ProtectedToken token);
 
     /**
      * Deletes all refresh tokens associated with the specified user ID from storage.
