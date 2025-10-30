@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.domain.models;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -16,6 +17,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import sc.snicky.springbootjwtauth.api.v1.domain.converters.ProtectedTokenConvertor;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -35,7 +38,8 @@ public class JpaRefreshToken extends BaseEntity<String> implements Serializable 
      */
     @Id
     @Column(name = "id", nullable = false, updatable = false)
-    private String id; // save in hashed value
+    @Convert(converter = ProtectedTokenConvertor.class)
+    private ProtectedToken token;
 
     /**
      * Indicates whether the token is active.

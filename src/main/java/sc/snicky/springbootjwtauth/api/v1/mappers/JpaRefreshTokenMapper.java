@@ -13,7 +13,6 @@ public interface JpaRefreshTokenMapper {
      * @param jpaRefreshToken the JPA entity to map
      * @return the mapped domain model
      */
-    @Mapping(target = "token", source = "id")
     @Mapping(target = "expiresAt", source = "exp")
     BasicRefreshToken toBasicRefreshToken(JpaRefreshToken jpaRefreshToken);
 
@@ -23,7 +22,6 @@ public interface JpaRefreshTokenMapper {
      * @param basicRefreshToken the domain model to map
      * @return the mapped JPA entity
      */
-    @Mapping(target = "id", source = "token")
     @Mapping(target = "exp", source = "expiresAt")
     JpaRefreshToken toJpaRefreshToken(BasicRefreshToken basicRefreshToken);
 }
