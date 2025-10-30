@@ -38,6 +38,13 @@ public class JpaRefreshToken extends BaseEntity<String> implements Serializable 
     private String id; // save in hashed value
 
     /**
+     * Indicates whether the token is active.
+     * Defaults to true and cannot be null.
+     */
+    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isActive;
+
+    /**
      * The user associated with the token.
      * Many tokens can belong to one user.
      * On user deletion, all associated tokens are also deleted (cascade).

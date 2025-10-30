@@ -11,6 +11,7 @@ import java.time.Instant;
 public class BasicRefreshToken {
     private String token;
     private User user;
+    private Boolean isActive;
     private Instant expiresAt;
     private Instant createdAt;
 }
