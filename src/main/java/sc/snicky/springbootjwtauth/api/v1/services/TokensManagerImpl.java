@@ -8,8 +8,6 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,26 +37,16 @@ public class TokensManagerImpl implements TokensManager {
      */
     @Override
     public TokenPair refreshTokens(String refreshToken) {
-        var uuidRefreshToken = convertToUUID(refreshToken);
-        var newRefreshToken = refreshTokenService.rotate(uuidRefreshToken);
+        var newRefreshToken = refreshTokenService.rotate(refreshToken);
         var accessToken = accessTokenService.generate(
                 UserDetailsAdaptor.ofUser(newRefreshToken.getUser()));
         return buildTokenPair(accessToken, newRefreshToken);
     }
 
-    private UUID convertToUUID(String token) {
-        try {
-            return UUID.fromString(token);
-        } catch (IllegalArgumentException ex) {
-            log.error("Invalid token format");
-            throw new InvalidRefreshTokenException("Invalid token format");
-        }
-    }
-
     private TokenPair buildTokenPair(String accessToken, RefreshTokenDetails refreshToken) {
         return TokenPair.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken().toString())
+                .refreshToken(refreshToken.getToken().getToken())
                 .build();
     }
 }

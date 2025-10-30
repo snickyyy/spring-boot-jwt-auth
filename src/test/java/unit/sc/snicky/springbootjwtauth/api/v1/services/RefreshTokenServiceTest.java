@@ -6,32 +6,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
 import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenServiceImpl;
+import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,13 +40,8 @@ public class RefreshTokenServiceTest {
     private static final String TEST_EMAIL = "testuser@test.te";
     private static final String TEST_PASSWORD = "testpassword";
     private final Long TEST_REFRESH_TOKEN_DURATION = 9000000L;
-    private final UUID TEST_TOKEN = UUID.randomUUID();
-
-
-    @Spy
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    private final String TEST_HASHED_TOKEN = passwordEncoder.encode(TEST_TOKEN.toString());
+    private final String TEST_NON_PROTECTED_TOKEN = TokenUtils.generateToken();
+    private final ProtectedToken TEST_PROTECTED_TOKEN = new ProtectedToken(TokenUtils.hashToken(TEST_NON_PROTECTED_TOKEN));
 
     @Mock
     private BasicRefreshTokenRepository basicRefreshTokenRepository;
@@ -101,7 +94,7 @@ public class RefreshTokenServiceTest {
         var token = buildToken(buildUser());
         when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(token));
 
-        var result = refreshTokenServiceTest.isValid(TEST_TOKEN);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertTrue(result);
     }
@@ -110,7 +103,7 @@ public class RefreshTokenServiceTest {
     void testIsValidWithTokenNotFound() {
         when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.empty());
 
-        var result = refreshTokenServiceTest.isValid(TEST_TOKEN);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertFalse(result);
     }
@@ -121,27 +114,40 @@ public class RefreshTokenServiceTest {
         token.setExpiresAt(Instant.now().minusSeconds(1));
         when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(token));
 
-        var result = refreshTokenServiceTest.isValid(TEST_TOKEN);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertFalse(result);
+    }
+
+    @Test
+    void testIsValidWithTokenIsNotActive() {
+        var token = buildToken(buildUser());
+        token.setIsActive(false);
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN)).thenReturn(Optional.of(token));
+
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
+
+        assertFalse(result);
+
+        verify(basicRefreshTokenRepository).findByToken(TEST_PROTECTED_TOKEN);
     }
 
     @Test
     void testRotateWithSuccess() {
         var testUser = buildUser();
         var oldToken = buildToken(testUser);
-        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(oldToken));
-        doNothing().when(basicRefreshTokenRepository).delete(any());
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN)).thenReturn(Optional.of(oldToken));
+        doNothing().when(basicRefreshTokenRepository).delete(TEST_PROTECTED_TOKEN);
         doNothing().when(basicRefreshTokenRepository).save(any());
 
-        RefreshTokenDetails result = refreshTokenServiceTest.rotate(TEST_TOKEN);
+        RefreshTokenDetails result = refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN);
 
         assertNotNull(result);
-        assertFalse(passwordEncoder.matches(result.getToken().toString(), TEST_HASHED_TOKEN));
+        assertNotEquals(TEST_PROTECTED_TOKEN.getToken(), result.getToken().getToken());
         assertEquals(testUser.getEmail(), result.getUser().getEmail());
         assertEquals(oldToken.getExpiresAt(), result.getExpiry());
 
-        verify(basicRefreshTokenRepository).delete(any());
+        verify(basicRefreshTokenRepository).delete(TEST_PROTECTED_TOKEN);
     }
 
     @Test
@@ -150,7 +156,7 @@ public class RefreshTokenServiceTest {
 
         assertThrows(
                 InvalidRefreshTokenException.class,
-                () -> refreshTokenServiceTest.rotate(TEST_TOKEN)
+                () -> refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN)
         );
     }
 
@@ -162,7 +168,7 @@ public class RefreshTokenServiceTest {
 
         assertThrows(
                 InvalidRefreshTokenException.class,
-                () -> refreshTokenServiceTest.rotate(TEST_TOKEN)
+                () -> refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN)
         );
     }
 
@@ -170,7 +176,7 @@ public class RefreshTokenServiceTest {
     void testRevokeTokenWithSuccess() {
         doNothing().when(basicRefreshTokenRepository).delete(any());
 
-        refreshTokenServiceTest.revoke(TEST_TOKEN);
+        refreshTokenServiceTest.revoke(TEST_NON_PROTECTED_TOKEN);
 
         verify(basicRefreshTokenRepository).delete(any());
     }
@@ -179,21 +185,22 @@ public class RefreshTokenServiceTest {
     void testFindByTokenWithSuccess() {
 
         var testToken = buildToken(buildUser());
-        when(basicRefreshTokenRepository.findByToken(anyString()))
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN))
                 .thenReturn(Optional.of(testToken));
 
-        Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(TEST_TOKEN);
+        Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(TEST_NON_PROTECTED_TOKEN);
 
         assertTrue(result.isPresent());
         assertEquals(testToken.getUser().getEmail(), result.get().getUser().getEmail());
 
-        verify(basicRefreshTokenRepository).findByToken(anyString());
+        verify(basicRefreshTokenRepository).findByToken(TEST_PROTECTED_TOKEN);
     }
 
     private BasicRefreshToken buildToken(User user) {
         return BasicRefreshToken.builder()
-                .token(TEST_HASHED_TOKEN)
+                .token(TEST_PROTECTED_TOKEN)
                 .user(user)
+                .isActive(true)
                 .expiresAt(Instant.now().plusMillis(TEST_REFRESH_TOKEN_DURATION))
                 .build();
     }

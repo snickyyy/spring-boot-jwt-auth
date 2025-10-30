@@ -2,6 +2,7 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.mappers.JpaRefreshTokenMapper;
 
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      * @return an Optional containing the found token, or empty if not found
      */
     @Override
-    public Optional<BasicRefreshToken> findByToken(String token) {
+    public Optional<BasicRefreshToken> findByToken(ProtectedToken token) {
         return jpaRefreshTokenRepository.findById(token).map(jpaRefreshTokenMapper::toBasicRefreshToken);
     }
 
@@ -45,7 +46,7 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      * @param token the UUID of the token to delete
      */
     @Override
-    public void delete(String token) {
+    public void delete(ProtectedToken token) {
         jpaRefreshTokenRepository.deleteById(token);
     }
 
