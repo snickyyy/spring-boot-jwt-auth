@@ -23,5 +23,6 @@ public interface JpaRefreshTokenMapper {
      * @return the mapped JPA entity
      */
     @Mapping(target = "exp", source = "expiresAt")
+    @Mapping(target = "id", ignore = true)
     JpaRefreshToken toJpaRefreshToken(BasicRefreshToken basicRefreshToken);
 }
