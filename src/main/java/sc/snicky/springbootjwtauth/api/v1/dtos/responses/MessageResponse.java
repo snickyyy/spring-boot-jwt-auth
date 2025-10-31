@@ -1,4 +1,4 @@
-package sc.snicky.springbootjwtauth.api.v1.domain.dtos.web.responses;
+package sc.snicky.springbootjwtauth.api.v1.dtos.responses;
 
 import java.time.Instant;
 

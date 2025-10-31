@@ -1,7 +1,8 @@
 package sc.snicky.springbootjwtauth.api.v1.domain.models;
 
+import sc.snicky.springbootjwtauth.api.v1.domain.types.NonProtectedToken;
+
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Represents the details of a refresh token used for authentication.
@@ -14,7 +15,7 @@ public interface RefreshTokenDetails {
      *
      * @return the UUID representing the token value, never {@code null}
      */
-    UUID getToken();
+    NonProtectedToken getToken();
 
     /**
      * Returns the user who owns this refresh token.
@@ -23,6 +24,14 @@ public interface RefreshTokenDetails {
      * @return the user ID as an Integer, never {@code null}
      */
     User getUser(); // todo: change to UserDetails from spring security
+
+    /**
+     * Indicates whether the refresh token is currently active.
+     * An active token can be used to obtain new access tokens.
+     *
+     * @return {@code true} if the token is active, {@code false} otherwise
+     */
+    Boolean getIsActive();
 
     /**
      * Returns the expiration timestamp of the refresh token.

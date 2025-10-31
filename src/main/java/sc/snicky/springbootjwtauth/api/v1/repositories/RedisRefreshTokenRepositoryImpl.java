@@ -1,48 +1,56 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repository implementation for storing tokens in Redis.
  * <p>
  * The actual implementation is not available yet and will be added in the future.
  */
-@Repository
 @RequiredArgsConstructor
 public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
     /**
-     * Saves the given token to Redis storage.
+     * Stores the given refresh token in Redis.
      *
-     * @param token the token to save
+     * @param token the refresh token to be stored
      */
     @Override
-    public void save(RefreshTokenDetails token) {
+    public void save(BasicRefreshToken token) {
 
     }
 
     /**
-     * Finds a token in Redis by its UUID.
+     * Retrieves a refresh token from Redis using its token string.
      *
-     * @param token the UUID of the token to find
-     * @return an Optional containing the found token, or empty if not found
+     * @param token the token string to look up
+     * @return an Optional containing the refresh token if found, otherwise empty
      */
     @Override
-    public Optional<RefreshTokenDetails> findByToken(UUID token) {
+    public Optional<BasicRefreshToken> findByToken(ProtectedToken token) {
         return Optional.empty();
     }
 
     /**
-     * Deletes the token with the specified UUID from Redis.
+     * Removes a refresh token from Redis using its token string.
      *
-     * @param token the UUID of the token to delete
+     * @param token the token string of the refresh token to be removed
      */
     @Override
-    public void delete(UUID token) {
+    public void delete(ProtectedToken token) {
+
+    }
+
+    /**
+     * Removes all refresh tokens associated with the specified user ID from Redis.
+     *
+     * @param userId the ID of the user whose refresh tokens should be removed
+     */
+    @Override
+    public void deleteAllByUserId(Integer userId) {
 
     }
 }

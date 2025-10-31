@@ -8,20 +8,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.PostgresTokenAdaptor;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
-import sc.snicky.springbootjwtauth.api.v1.domain.models.Token;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.RefreshTokenIsNotValid;
+import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRefreshTokenException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
 import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenServiceImpl;
+import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,7 +39,9 @@ import static org.mockito.Mockito.when;
 public class RefreshTokenServiceTest {
     private static final String TEST_EMAIL = "testuser@test.te";
     private static final String TEST_PASSWORD = "testpassword";
-    private static final Long TEST_REFRESH_TOKEN_DURATION = 9000000L;
+    private final Long TEST_REFRESH_TOKEN_DURATION = 9000000L;
+    private final String TEST_NON_PROTECTED_TOKEN = TokenUtils.generateToken();
+    private final ProtectedToken TEST_PROTECTED_TOKEN = new ProtectedToken(TokenUtils.hashToken(TEST_NON_PROTECTED_TOKEN));
 
     @Mock
     private BasicRefreshTokenRepository basicRefreshTokenRepository;
@@ -89,124 +91,126 @@ public class RefreshTokenServiceTest {
 
     @Test
     void testIsValidWithSuccess() {
-        var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
-        when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
+        var token = buildToken(buildUser());
+        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(token));
 
-        var result = refreshTokenServiceTest.isValid(tokenId);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertTrue(result);
     }
 
     @Test
     void testIsValidWithTokenNotFound() {
-        var tokenId = UUID.randomUUID();
-        when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.empty());
+        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.empty());
 
-        var result = refreshTokenServiceTest.isValid(tokenId);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertFalse(result);
     }
 
     @Test
     void testIsValidWithTokenIsExpired() {
-        var tokenId = UUID.randomUUID();
-        var token = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
-        token.setExpiry(Instant.now().minusSeconds(1));
-        when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(token));
+        var token = buildToken(buildUser());
+        token.setExpiresAt(Instant.now().minusSeconds(1));
+        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(token));
 
-        var result = refreshTokenServiceTest.isValid(tokenId);
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
 
         assertFalse(result);
     }
 
     @Test
+    void testIsValidWithTokenIsNotActive() {
+        var token = buildToken(buildUser());
+        token.setIsActive(false);
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN)).thenReturn(Optional.of(token));
+
+        var result = refreshTokenServiceTest.isValid(TEST_NON_PROTECTED_TOKEN);
+
+        assertFalse(result);
+
+        verify(basicRefreshTokenRepository).findByToken(TEST_PROTECTED_TOKEN);
+    }
+
+    @Test
     void testRotateWithSuccess() {
-        var oldTokenId = UUID.randomUUID();
         var testUser = buildUser();
-        var oldToken = PostgresTokenAdaptor.ofToken(buildToken(testUser));
-        when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.of(oldToken));
-        doNothing().when(basicRefreshTokenRepository).delete(oldTokenId);
+        var oldToken = buildToken(testUser);
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN)).thenReturn(Optional.of(oldToken));
+        doNothing().when(basicRefreshTokenRepository).delete(TEST_PROTECTED_TOKEN);
         doNothing().when(basicRefreshTokenRepository).save(any());
 
-        RefreshTokenDetails result = refreshTokenServiceTest.rotate(oldTokenId);
+        RefreshTokenDetails result = refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN);
 
         assertNotNull(result);
-        assertNotEquals(oldToken.getToken(), result.getToken());
+        assertNotEquals(TEST_PROTECTED_TOKEN.getToken(), result.getToken().getToken());
         assertEquals(testUser.getEmail(), result.getUser().getEmail());
-        assertEquals(oldToken.getExpiry(), result.getExpiry());
+        assertEquals(oldToken.getExpiresAt(), result.getExpiry());
 
-        verify(basicRefreshTokenRepository).delete(oldTokenId);
-        verify(basicRefreshTokenRepository).save(result);
+        verify(basicRefreshTokenRepository).delete(TEST_PROTECTED_TOKEN);
     }
 
     @Test
     void testRotateWithRefreshTokenNotValidException() {
-        var oldTokenId = UUID.randomUUID();
-        when(basicRefreshTokenRepository.findByToken(oldTokenId)).thenReturn(Optional.empty());
+        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.empty());
 
         assertThrows(
-                RefreshTokenIsNotValid.class,
-                () -> refreshTokenServiceTest.rotate(oldTokenId)
+                InvalidRefreshTokenException.class,
+                () -> refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN)
+        );
+    }
+
+    @Test
+    void testRotateWithRefreshTokenIsExpired() {
+        var token = buildToken(buildUser());
+        token.setExpiresAt(Instant.now().minusSeconds(1));
+        when(basicRefreshTokenRepository.findByToken(any())).thenReturn(Optional.of(token));
+
+        assertThrows(
+                InvalidRefreshTokenException.class,
+                () -> refreshTokenServiceTest.rotate(TEST_NON_PROTECTED_TOKEN)
         );
     }
 
     @Test
     void testRevokeTokenWithSuccess() {
-        var tokenId = UUID.randomUUID();
-        doNothing().when(basicRefreshTokenRepository).delete(tokenId);
+        doNothing().when(basicRefreshTokenRepository).delete(any());
 
-        refreshTokenServiceTest.revoke(tokenId);
+        refreshTokenServiceTest.revoke(TEST_NON_PROTECTED_TOKEN);
 
-        verify(basicRefreshTokenRepository).delete(tokenId);
+        verify(basicRefreshTokenRepository).delete(any());
     }
 
     @Test
     void testFindByTokenWithSuccess() {
-        var tokenId = UUID.randomUUID();
-        var testToken = PostgresTokenAdaptor.ofToken(buildToken(
-                User.builder()
-                        .email(TEST_EMAIL)
-                        .password(TEST_PASSWORD)
-                        .role(Role.builder().name(ERole.USER).build())
-                        .build()
-        ));
-        when(basicRefreshTokenRepository.findByToken(tokenId)).thenReturn(Optional.of(testToken));
 
-        Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(tokenId);
+        var testToken = buildToken(buildUser());
+        when(basicRefreshTokenRepository.findByToken(TEST_PROTECTED_TOKEN))
+                .thenReturn(Optional.of(testToken));
+
+        Optional<RefreshTokenDetails> result = refreshTokenServiceTest.findByToken(TEST_NON_PROTECTED_TOKEN);
 
         assertTrue(result.isPresent());
-        assertEquals(testToken.getToken(), result.get().getToken());
         assertEquals(testToken.getUser().getEmail(), result.get().getUser().getEmail());
 
-        verify(basicRefreshTokenRepository).findByToken(tokenId);
+        verify(basicRefreshTokenRepository).findByToken(TEST_PROTECTED_TOKEN);
     }
 
-    private Token buildToken(User user) {
-        return Token.builder()
-                .id(UUID.randomUUID())
+    private BasicRefreshToken buildToken(User user) {
+        return BasicRefreshToken.builder()
+                .token(TEST_PROTECTED_TOKEN)
                 .user(user)
-                .exp(Instant.now().plusMillis(TEST_REFRESH_TOKEN_DURATION))
+                .isActive(true)
+                .expiresAt(Instant.now().plusMillis(TEST_REFRESH_TOKEN_DURATION))
                 .build();
     }
 
     private User buildUser() {
-        return User.builder()
+        var user = User.builder()
                 .email(TEST_EMAIL)
                 .password(TEST_PASSWORD)
-                .role(Role.builder().name(ERole.USER).build())
                 .build();
+        user.assignRole(Role.builder().name(ERole.USER).build());
+        return user;
     }
 }

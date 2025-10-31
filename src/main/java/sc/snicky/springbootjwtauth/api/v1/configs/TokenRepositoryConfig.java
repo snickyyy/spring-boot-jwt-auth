@@ -3,8 +3,9 @@ package sc.snicky.springbootjwtauth.api.v1.configs;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import sc.snicky.springbootjwtauth.api.v1.mappers.JpaRefreshTokenMapper;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
-import sc.snicky.springbootjwtauth.api.v1.repositories.JpaTokenRepository;
+import sc.snicky.springbootjwtauth.api.v1.repositories.JpaRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.PostgresRefreshTokenRepositoryImpl;
 
 @Configuration
@@ -13,13 +14,14 @@ public class TokenRepositoryConfig {
      * Creates a Postgres-based token repository bean.
      * Activated when the property `app.auth.tokens.refresh.db` is set to `postgres`.
      *
-     * @param jpaTokenRepository the JPA token repository dependency
+     * @param mapper                    the JPA token mapper dependency
+     * @param repo the JPA token repository dependency
      * @return a PostgresTokenRepositoryImpl instance
      */
     @Bean
     @ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "postgres")
-    public BasicRefreshTokenRepository postgresTokenRepository(JpaTokenRepository jpaTokenRepository) {
-        return new PostgresRefreshTokenRepositoryImpl(jpaTokenRepository);
+    public BasicRefreshTokenRepository postgresTokenRepository(JpaRefreshTokenMapper mapper, JpaRefreshTokenRepository repo) {
+        return new PostgresRefreshTokenRepositoryImpl(repo, mapper);
     }
 
     /**
