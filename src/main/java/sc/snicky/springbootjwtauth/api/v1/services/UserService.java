@@ -15,17 +15,19 @@ import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
 @RequiredArgsConstructor
 public class UserService {
     private final JpaUserRepository jpaUserRepository;
+    private final JpaRoleRepository jpaRoleRepository;
 
     /**
      * Retrieves a user by their email address.
      *
      * @param email the email address to search for; must not be {@code null}
      * @return the {@link User} with the given email
-     * @throws UserNotFoundException if no user with the given email is found
+     * @throws UserNotFoundException if no user with the given email is found or the user is not active
      */
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return jpaUserRepository.findByEmail(email)
+                .filter(User::getIsActive)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }
 
@@ -34,11 +36,12 @@ public class UserService {
      *
      * @param id the unique identifier of the user; must not be {@code null}
      * @return the {@link User} with the given id
-     * @throws UserNotFoundException if no user with the given id is found
+     * @throws UserNotFoundException if no user with the given id is found or the user is not active
      */
     @Transactional
     public User getUserById(Integer id) {
         return jpaUserRepository.findById(id)
+                .filter(User::getIsActive)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 
