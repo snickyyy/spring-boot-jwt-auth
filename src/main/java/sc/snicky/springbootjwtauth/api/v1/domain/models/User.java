@@ -47,6 +47,12 @@ public class User extends BaseEntity<Integer> implements Serializable {
     private String password;
 
     /**
+     * Indicates whether the user is active.
+     */
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    /**
      * User roles.
      */
     @ManyToMany(fetch = FetchType.LAZY)

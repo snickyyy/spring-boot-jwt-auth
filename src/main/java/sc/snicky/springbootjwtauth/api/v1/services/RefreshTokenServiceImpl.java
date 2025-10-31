@@ -90,7 +90,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshTokenDetails rotate(String oldToken) {
-        return basicRefreshTokenRepository.findByToken(new ProtectedToken(TokenUtils.hashToken(oldToken)))
+        return findToken(oldToken)
                 .map(t -> {
                     if (t.getExpiresAt().isBefore(Instant.now())) {
                         log.error("Refresh token {} has expired and cannot be rotated", TokenUtils.hashToken(oldToken));
@@ -183,7 +183,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     private Optional<BasicRefreshToken> findToken(String token) {
-        return basicRefreshTokenRepository.findByToken(new ProtectedToken(TokenUtils.hashToken(token)));
+        return basicRefreshTokenRepository.findByToken(new ProtectedToken(TokenUtils.hashToken(token)))
+                .filter(BasicRefreshToken::getIsActive);
     }
 
     private boolean isValid(BasicRefreshToken basicRefreshToken) {
