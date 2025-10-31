@@ -39,3 +39,6 @@ app:
         access: 900000          # 15 minutes
         refresh: 604800000      # 7 days
 
+    naming:
+      refresh-token-cookie: session
+
