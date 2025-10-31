@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.services;
 
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
+import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 
 import java.util.Optional;
 
@@ -12,6 +13,14 @@ public interface RefreshTokenService {
      * @return the generated {@link RefreshTokenDetails}
      */
     RefreshTokenDetails generate(Integer userId);
+
+    /**
+     * Generates a new refresh token for the specified user.
+     *
+     * @param user the {@link User} entity
+     * @return the generated {@link RefreshTokenDetails}
+     */
+    RefreshTokenDetails generate(User user);
 
     /**
      * Rotates (replaces) the old refresh token with a new one.

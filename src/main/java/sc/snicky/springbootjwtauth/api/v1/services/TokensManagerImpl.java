@@ -43,7 +43,14 @@ public class TokensManagerImpl implements TokensManager {
         return buildTokenPair(accessToken, newRefreshToken);
     }
 
-    private TokenPair buildTokenPair(String accessToken, RefreshTokenDetails refreshToken) {
+    /**
+     * Builds a {@link TokenPair} object using the provided access token and refresh token details.
+     *
+     * @param accessToken the access token as a string
+     * @param refreshToken the details of the refresh token
+     * @return a {@link TokenPair} containing the access and refresh tokens
+     */
+    public static TokenPair buildTokenPair(String accessToken, RefreshTokenDetails refreshToken) {
         return TokenPair.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken().getToken())
