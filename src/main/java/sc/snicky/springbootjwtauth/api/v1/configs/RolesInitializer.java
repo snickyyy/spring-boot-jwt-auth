@@ -26,7 +26,7 @@ public class RolesInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         for (var role : ERole.values()) {
             log.info("init role {}", role.name());
-            jpaRoleRepository.findByName(role.name())
+            jpaRoleRepository.findByName(role)
                     .orElseGet(() -> jpaRoleRepository.saveAndFlush(
                             Role.builder()
                                     .name(role)

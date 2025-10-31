@@ -28,6 +28,6 @@ public abstract class BaseEntity<ID> implements Serializable, BaseModel<ID> {
      * The timestamp when the entity was created.
      */
     @ColumnDefault("now()")
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private Instant createdAt;
 }
