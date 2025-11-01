@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.exceptions.handlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import sc.snicky.springbootjwtauth.api.v1.dtos.responses.ErrorResponse;
 
 @Slf4j
+@Order
 @ControllerAdvice
 public class GlobalExceptionHandler {
     /**
