@@ -37,7 +37,7 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      */
     @Override
     public Optional<BasicRefreshToken> findByToken(ProtectedToken token) {
-        return jpaRefreshTokenRepository.findById(token).map(jpaRefreshTokenMapper::toBasicRefreshToken);
+        return jpaRefreshTokenRepository.findByToken(token).map(jpaRefreshTokenMapper::toBasicRefreshToken);
     }
 
     /**
@@ -47,7 +47,7 @@ public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepo
      */
     @Override
     public void delete(ProtectedToken token) {
-        jpaRefreshTokenRepository.deleteById(token);
+        jpaRefreshTokenRepository.deleteByToken(token);
     }
 
     /**

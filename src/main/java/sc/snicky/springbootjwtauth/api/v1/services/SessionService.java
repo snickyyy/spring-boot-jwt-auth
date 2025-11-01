@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.DefaultUnauthorizedException;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -22,17 +23,21 @@ public class SessionService {
 
     /**
      * Reads the session token from the cookies in the provided HTTP request.
+     * This method searches for a cookie with the name specified by the
+     * `nameTokenCookie` property and retrieves its value.
      *
      * @param request the HTTP request containing cookies
-     * @return an {@link Optional} containing the session token if found, or an empty {@link Optional} if not
+     * @return the session token as a {@link String}
+     * @throws DefaultUnauthorizedException if the session token is not found
      */
-    public Optional<String> readSessionToken(HttpServletRequest request) {
+    public String getSessionToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies())
                 .stream()
                 .flatMap(Arrays::stream)
                 .filter(cookie -> Objects.equals(cookie.getName(), nameTokenCookie))
                 .map(Cookie::getValue)
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new DefaultUnauthorizedException("User is not authorized"));
     }
 
     /**

@@ -55,7 +55,7 @@ public class JpaRefreshToken extends BaseEntity<Integer> implements Serializable
      * Indicates whether the token is active.
      * Defaults to true and cannot be null.
      */
-    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_active", nullable = false, insertable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive;
 
     /**

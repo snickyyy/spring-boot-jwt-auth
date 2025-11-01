@@ -154,6 +154,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * @param token the String of the refresh token to revoke
      */
     @Override
+    @Transactional
     public void revoke(String token) {
         basicRefreshTokenRepository.delete(new ProtectedToken(TokenUtils.hashToken(token)));
     }
