@@ -3,6 +3,7 @@ package sc.snicky.springbootjwtauth.api.v1.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.RefreshTokenDetails;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
@@ -36,6 +37,7 @@ public class TokensManagerImpl implements TokensManager {
      * @throws InvalidRefreshTokenException if the token format is invalid
      */
     @Override
+    @Transactional
     public TokenPair refreshTokens(String refreshToken) {
         var newRefreshToken = refreshTokenService.rotate(refreshToken);
         var accessToken = accessTokenService.generate(
