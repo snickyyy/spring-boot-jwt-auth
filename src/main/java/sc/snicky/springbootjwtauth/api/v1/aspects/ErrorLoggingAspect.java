@@ -24,7 +24,7 @@ public class ErrorLoggingAspect {
      * @param joinPoint the join point providing reflective access to the method being advised
      */
     @Before("errorHandlingLayer()")
-    public void logBeforErrorHandlingMethods(JoinPoint joinPoint) {
+    public void logBeforeErrorHandlingMethods(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 
         if (args.length > 0 && args[0] instanceof Exception ex) {
