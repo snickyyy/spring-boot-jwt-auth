@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
-public class ValidationExceptionHandler { // todo добавить AOP для логирования ошибок
+public class ValidationExceptionHandler {
     /**
      * Handles exceptions when a method argument type does not match the expected type.
      *
