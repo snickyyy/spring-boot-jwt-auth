@@ -102,7 +102,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * @throws InvalidAccessTokenException if the token is malformed, expired, or has an invalid signature.
      */
     @Override
-    public UserDetails extractUserDetails(String token) { //todo add tests
+    public UserDetails extractUserDetails(String token) {
         UserDetailsAdaptor detailsAdaptor = UserDetailsAdaptor.builder()
                 .username(extractUsername(token))
                 .password("N/A") // Password is not stored in token
