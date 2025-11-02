@@ -25,7 +25,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return UserDetailsAdaptor.ofUser(jpaUserRepository.findByEmail(username)
+        return UserDetailsAdaptor.ofUser(jpaUserRepository.findByEmailAndIsActiveTrue(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + username + " not found")));
     }
 }

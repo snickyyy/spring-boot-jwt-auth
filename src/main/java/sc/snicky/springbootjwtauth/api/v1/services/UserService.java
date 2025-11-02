@@ -27,10 +27,8 @@ public class UserService {
      * @return the {@link User} with the given email
      * @throws UserNotFoundException if no user with the given email is found or the user is not active
      */
-    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
-        return jpaUserRepository.findByEmail(email)
-                .filter(User::getIsActive)
+        return jpaUserRepository.findByEmailAndIsActiveTrue(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }
 
@@ -43,8 +41,7 @@ public class UserService {
      */
     @Transactional
     public User getUserById(Integer id) {
-        return jpaUserRepository.findById(id)
-                .filter(User::getIsActive)
+        return jpaUserRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 

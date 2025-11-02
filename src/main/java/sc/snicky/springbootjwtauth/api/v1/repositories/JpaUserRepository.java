@@ -9,10 +9,18 @@ import java.util.Optional;
 @Repository
 public interface JpaUserRepository extends JpaRepository<User, Integer> {
     /**
-     * Find a user by their username.
+     * Find an active user by their ID.
      *
-     * @param email the username to search for
+     * @param id the ID of the user
      * @return an {@link Optional} containing the found user, or empty if not found
      */
-    Optional<User> findByEmail(String email);
+    Optional<User> findByIdAndIsActiveTrue(Integer id);
+
+    /**
+     * Find an active user by their email.
+     *
+     * @param email the email to search for
+     * @return an {@link Optional} containing the found user, or empty if not found
+     */
+    Optional<User> findByEmailAndIsActiveTrue(String email);
 }
