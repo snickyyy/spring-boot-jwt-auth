@@ -61,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
      * @throws PasswordOrEmailIsInvalidException if the email or password is invalid
      */
     @Override
+    @Transactional
     public TokenPair login(String email, String password) {
         try {
             var user = userService.getUserByEmail(email);

@@ -75,7 +75,7 @@ public class UserService {
     @Transactional
     public void saveUser(User user, ERole role) {
         try {
-            user.assignRole(jpaRoleRepository.findByName(role.name())
+            user.assignRole(jpaRoleRepository.findByName(role)
                     .orElseThrow(() -> {
                         log.error("Role {} not found", role.name());
                         return new RoleNotFoundException("Role " + role.name() + " not found");

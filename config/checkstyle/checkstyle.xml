@@ -124,6 +124,7 @@
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
 
+        <module name="SuppressionCommentFilter"/>
         <!-- Checks for whitespace                               -->
         <!-- See https://checkstyle.org/checks/whitespace/index.html -->
         <module name="EmptyForIteratorPad"/>
