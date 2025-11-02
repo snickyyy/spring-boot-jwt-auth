@@ -35,19 +35,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public TokenPair register(String email, String password) {
-        try {
-            var user = User.builder()
-                    .email(email)
-                    .isActive(true) // todo add email verification later
-                    .password(passwordEncoder.encode(password))
-                    .build();
-            userService.saveUser(user, ERole.USER);
-            log.debug("User with email {} registered successfully, user id: {}", email, user.getId());
-            return buildTokenPairForUser(user);
-        } catch (UserAlreadyExistException e) {
-            log.warn("Register error: user with email {} already exists", email);
-            throw e;
-        }
+        var user = User.builder()
+                .email(email)
+                .isActive(true) // todo add email verification later
+                .password(passwordEncoder.encode(password))
+                .build();
+        userService.saveUser(user, ERole.USER);
+        log.debug("User with email {} registered successfully, user id: {}", email, user.getId());
+        return buildTokenPairForUser(user); // change on getReferenceById
     }
 
     /**
