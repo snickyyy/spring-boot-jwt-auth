@@ -41,7 +41,7 @@ public class SpringSecurityConfig {
 
     /**
      * Configures the security filter chain for the application.
-     *
+     * <p>
      * This method defines the security rules for HTTP requests, including:
      * - Permitting all requests to authentication endpoints and Swagger documentation.
      * - Requiring authentication for all other requests.
@@ -66,6 +66,11 @@ public class SpringSecurityConfig {
                 .build();
     }
 
+    /**
+     * Configures CORS settings for the application.
+     *
+     * @return the configured CORS source
+     */
     @Bean
     public UrlBasedCorsConfigurationSource apiConfigurationSource() {
         log.info("Configuring CORS with allowed methods: {}", Arrays.toString(allowedMethods));
