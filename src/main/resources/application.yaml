@@ -37,6 +37,9 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
+  cors:
+    allowed-methods: GET
+    allowed-origins: http://localhost:3000
   auth:
     naming:
       refresh-token-cookie: session
