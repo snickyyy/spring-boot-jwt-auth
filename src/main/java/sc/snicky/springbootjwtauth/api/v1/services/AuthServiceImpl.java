@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         userService.saveUser(user, ERole.USER);
         log.debug("User with email {} registered successfully, user id: {}", email, user.getId());
-        return buildTokenPairForUser(user); // change on getReferenceById
+        return buildTokenPairForUser(user); // todo change on getReferenceById
     }
 
     /**
