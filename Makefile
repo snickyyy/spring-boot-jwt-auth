@@ -14,3 +14,15 @@ app-stop:
 app-exec:
 	@echo "Accessing the application container..."
 	docker exec -it spring-boot-jwt-auth /bin/sh
+
+compose-up:
+	@echo "Starting services with Docker Compose..."
+	docker-compose up -d
+
+compose-down:
+	@echo "Stopping services with Docker Compose..."
+	docker-compose down
+
+compose-logs:
+	@echo "Tailing logs from services..."
+	docker-compose logs -f
