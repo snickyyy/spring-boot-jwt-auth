@@ -39,7 +39,7 @@ public class UserService {
      * @return the {@link User} with the given id
      * @throws UserNotFoundException if no user with the given id is found or the user is not active
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public User getUserById(Integer id) {
         return jpaUserRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));

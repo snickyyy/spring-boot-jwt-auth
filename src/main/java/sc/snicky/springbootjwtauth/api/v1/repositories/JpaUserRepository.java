@@ -7,7 +7,7 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import java.util.Optional;
 
 @Repository
-public interface JpaUserRepository extends JpaRepository<User, Integer> {
+public interface JpaUserRepository extends JpaRepository<User, Integer> { //todo add getReferenceById
     /**
      * Find an active user by their ID.
      *
