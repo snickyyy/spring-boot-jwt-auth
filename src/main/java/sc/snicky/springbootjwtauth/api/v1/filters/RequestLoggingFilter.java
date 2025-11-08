@@ -1,4 +1,4 @@
-package sc.snicky.springbootjwtauth.api.v1.middlewares;
+package sc.snicky.springbootjwtauth.api.v1.filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class RequestLoggingMiddleware extends OncePerRequestFilter {
+public class RequestLoggingFilter extends OncePerRequestFilter {
     /**
      * Filters the incoming HTTP request, logging the method, URI, response status, and processing time.
      *
