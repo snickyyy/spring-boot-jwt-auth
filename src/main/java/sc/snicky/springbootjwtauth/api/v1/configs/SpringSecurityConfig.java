@@ -1,5 +1,6 @@
 package sc.snicky.springbootjwtauth.api.v1.configs;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +13,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import sc.snicky.springbootjwtauth.api.v1.filters.AuthenticationFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,12 +25,15 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SpringSecurityConfig {
     @Value("${app.cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
     private String[] allowedMethods;
 
     @Value("${app.cors.allowed-origins:http://localhost:3000}")
     private String[] allowedOrigins;
+
+    private final AuthenticationFilter authenticationFilter;
 
     /**
      * Creates a PasswordEncoder bean using BCrypt hashing algorithm.
@@ -62,6 +68,7 @@ public class SpringSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(apiConfigurationSource()))
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
