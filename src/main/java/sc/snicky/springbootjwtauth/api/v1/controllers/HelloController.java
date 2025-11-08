@@ -11,23 +11,33 @@ import sc.snicky.springbootjwtauth.api.v1.dtos.responses.MessageResponse;
 @RestController
 @RequestMapping("/api/v1")
 public class HelloController {
-
     /**
-     * Handles GET requests and returns a greeting message.
+     * Returns the roles of the current user.
      *
-     * @return ResponseEntity containing a MessageResponse with "Hello World"
+     * @param authentication the authentication object containing user details
+     * @return ResponseEntity with a MessageResponse object containing the user's roles
      */
-    @GetMapping("/hello-all")
+    @GetMapping("/get-my-roles")
     public ResponseEntity<MessageResponse<?>> hello(Authentication authentication) {
         return ResponseEntity.ok(MessageResponse.of(authentication.getAuthorities()));
     }
 
+    /**
+     * Returns a greeting message for users with the USER role.
+     *
+     * @return ResponseEntity with a MessageResponse object containing the message "Hello user"
+     */
     @GetMapping("/hello-user")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MessageResponse<String>> helloUser() {
         return ResponseEntity.ok(MessageResponse.of("Hello user"));
     }
 
+    /**
+     * Returns a greeting message for users with the ADMIN role.
+     *
+     * @return ResponseEntity with a MessageResponse object containing the message "Hello admin"
+     */
     @GetMapping("/hello-admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse<String>> helloAdmin() {
