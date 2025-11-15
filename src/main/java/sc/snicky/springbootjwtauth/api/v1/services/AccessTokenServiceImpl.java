@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
@@ -109,7 +110,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
                 .build();
         detailsAdaptor.setGrantedAuthorities(
                 extractRoles(token).stream()
-                .map((erole) -> (GrantedAuthority) erole::name)
+                .map((erole) -> new SimpleGrantedAuthority("ROLE_" + erole.name()))
                 .toList()
         );
         return detailsAdaptor;

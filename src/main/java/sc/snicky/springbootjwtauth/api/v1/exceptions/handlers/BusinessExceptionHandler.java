@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.exceptions.handlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,5 +67,22 @@ public class BusinessExceptionHandler {
                 Instant.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Handles exceptions of type {@link AuthorizationDeniedException}.
+     *
+     * @param ex the exception to handle
+     * @return a {@link ResponseEntity} containing the error response with HTTP status 403 (Forbidden)
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        var errorResponse = new ErrorResponse(
+                "Forbidden",
+                ex.getMessage(),
+                HttpStatus.FORBIDDEN.value(),
+                Instant.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 }
