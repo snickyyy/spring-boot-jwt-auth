@@ -32,6 +32,7 @@ import java.time.Instant;
 public class AuthController {
     private final AuthService authService;
     private final SessionService sessionService;
+
     /**
      * Registers a new user and returns authentication tokens.
      *
@@ -77,9 +78,13 @@ public class AuthController {
      * @param response the HTTP response
      * @return a response entity containing the authentication response
      */
-    @Operation(summary = "Refresh authentication tokens", description = "Refreshes authentication tokens using the provided refresh token.", responses = {
-            @ApiResponse(responseCode = "200", description = "Tokens refreshed successfully"),
-            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")})
+    @Operation(
+            summary = "Refresh authentication tokens",
+            description = "Refreshes authentication tokens using the provided refresh token.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Tokens refreshed successfully"),
+                    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+            })
     @PostMapping("/tokens/refresh")
     public ResponseEntity<AuthResponse> refreshTokens(HttpServletRequest request, HttpServletResponse response) {
         var refreshToken = sessionService.getSessionToken(request);
