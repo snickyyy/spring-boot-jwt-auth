@@ -1,5 +1,8 @@
 package sc.snicky.springbootjwtauth.api.v1.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,6 +28,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "authentication", description = "Endpoints for user authentication and session management")
 public class AuthController {
     private final AuthService authService;
     private final SessionService sessionService;
@@ -36,6 +40,7 @@ public class AuthController {
      * @return a response entity containing the authentication response
      */
     @PostMapping("/register")
+    @Operation(summary = "Register a new user", description = "Registers a new user and returns authentication tokens.")
     public ResponseEntity<AuthResponse> register(
             HttpServletResponse response, @Valid @RequestBody AuthRequest authRequest) {
 
@@ -52,6 +57,9 @@ public class AuthController {
      * @param authRequest the authentication request containing user credentials
      * @return a response entity containing the authentication response
      */
+    @Operation(summary = "Authenticate user", description = "Authenticates a user and returns authentication tokens.", responses = {
+            @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid credentials provided")})
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             HttpServletResponse response, @Valid @RequestBody AuthRequest authRequest) {
@@ -69,6 +77,9 @@ public class AuthController {
      * @param response the HTTP response
      * @return a response entity containing the authentication response
      */
+    @Operation(summary = "Refresh authentication tokens", description = "Refreshes authentication tokens using the provided refresh token.", responses = {
+            @ApiResponse(responseCode = "200", description = "Tokens refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")})
     @PostMapping("/tokens/refresh")
     public ResponseEntity<AuthResponse> refreshTokens(HttpServletRequest request, HttpServletResponse response) {
         var refreshToken = sessionService.getSessionToken(request);
@@ -85,6 +96,9 @@ public class AuthController {
      * @param response the HTTP response
      * @return a response entity with no content
      */
+    @Operation(summary = "Logout user", description = "Logs out the user by invalidating the refresh token.", responses = {
+            @ApiResponse(responseCode = "204", description = "User logged out successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")})
     @DeleteMapping("/logout")
     public ResponseEntity<AuthResponse> logout(HttpServletRequest request, HttpServletResponse response) {
         var refreshToken = sessionService.getSessionToken(request);
