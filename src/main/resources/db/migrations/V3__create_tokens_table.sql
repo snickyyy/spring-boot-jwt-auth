@@ -1,0 +1,8 @@
+CREATE TABLE tokens (
+    id SERIAL PRIMARY KEY,
+    token VARCHAR NOT NULL UNIQUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    exp TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+)

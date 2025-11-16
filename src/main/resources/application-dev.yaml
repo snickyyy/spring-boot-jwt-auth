@@ -1,0 +1,30 @@
+spring:
+  jpa:
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migrations
+    schemas: admin
+    table: flyway_schema_history
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:4444/postgres
+    username: ${POSTGRES_USERNAME:admin}
+    password: ${POSTGRES_PASSWORD:admin}
+
+app:
+  debug: ${DEBUG:false}
+  auth:
+    tokens:
+      refresh:
+        db: ${REFRESH_TOKEN_STORAGE:postgres}
+
+      secret:
+        access: ${JWT_ACCESS_SECRET:your_access_secret_key__________________________}
+        refresh: ${JWT_REFRESH_SECRET:your_refresh_secret_key__________________________}
+
+      expiration:
+        access: ${ACCESS_TOKEN_EXP_TIME_MS:900000}          # 15 minutes
+        refresh: ${REFRESH_TOKEN_EXP_TIME_MS:604800000}     # 7 days

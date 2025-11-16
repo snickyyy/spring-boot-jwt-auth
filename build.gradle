@@ -4,14 +4,46 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.5'
     id 'checkstyle'
     id 'com.github.spotbugs' version '6.4.2'
     id 'pmd'
 }
 
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre'
+    }
+    to {
+        image = 'spring-boot-jwt-auth'
+    }
+
+    container {
+        ports = ['8080', '8080']
+        workingDirectory = '/app'
+        extraDirectories {
+            paths {
+                path {
+                    from = './'
+                    into = '/app'
+                    includes = ['.env']
+                }
+            }
+        }
+    }
+}
+
 group = 'sc.snicky'
 version = '0.0.1-SNAPSHOT'
 description = 'spring-boot-jwt-auth'
+
+ext {
+    versions = [
+            jsonwebtoken: "0.12.5",
+            mapstruct  : "1.6.3",
+            swaggerui  : "2.8.6",
+    ]
+}
 
 java {
     toolchain {
@@ -59,6 +91,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation "org.mapstruct:mapstruct:${versions.mapstruct}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions.swaggerui}"
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation "io.jsonwebtoken:jjwt-api:${versions.jsonwebtoken}"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${versions.jsonwebtoken}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${versions.jsonwebtoken}"
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation('org.springframework.boot:spring-boot-starter') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
@@ -73,6 +115,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${versions.mapstruct}"
 
     runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

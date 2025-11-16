@@ -1,3 +1,19 @@
+logging:
+  file:
+    name: logs/app.log
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    sc.snicky.springbootjwtauth: DEBUG
+
+
+server:
+  servlet:
+    encoding:
+      enabled: true
+      force: true
+      charset: UTF-8
+
 spring:
   application:
     name: spring-boot-jwt-auth
@@ -6,17 +22,23 @@ spring:
     property-naming-strategy: SNAKE_CASE
 
   jpa:
-    show-sql: ${app.debug}
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migrations
+    table: flyway_schema_history
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/postgres}
-    username: ${POSTGRES_USERNAME:admin}
-    password: ${POSTGRES_PASSWORD:admin}
 
 app:
-  debug: ${DEBUG:false}
+  cors:
+    allowed-methods: GET
+    allowed-origins: http://localhost:3000
+  auth:
+    naming:
+      refresh-token-cookie: session
