@@ -28,8 +28,6 @@ This project is a backend service that provides robust security based on JWT, in
 Follow these steps to get a local copy up and running.
 
 ### Prerequisites
-
--   JDK 21 or newer
 -   Docker and Docker Compose
 
 ### Installation & Launch
