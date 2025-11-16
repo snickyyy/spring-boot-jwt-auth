@@ -40,7 +40,8 @@ description = 'spring-boot-jwt-auth'
 ext {
     versions = [
             jsonwebtoken: "0.12.5",
-            mapstruct  : "1.6.3"
+            mapstruct  : "1.6.3",
+            swaggerui  : "2.8.6",
     ]
 }
 
@@ -92,6 +93,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation "org.mapstruct:mapstruct:${versions.mapstruct}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions.swaggerui}"
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation "io.jsonwebtoken:jjwt-api:${versions.jsonwebtoken}"

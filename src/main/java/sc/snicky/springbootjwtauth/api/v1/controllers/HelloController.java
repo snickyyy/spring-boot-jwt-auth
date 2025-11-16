@@ -1,5 +1,6 @@
 package sc.snicky.springbootjwtauth.api.v1.controllers;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sc.snicky.springbootjwtauth.api.v1.dtos.responses.MessageResponse;
 
+@Profile("dev")
 @RestController
 @RequestMapping("/api/v1")
 public class HelloController {
