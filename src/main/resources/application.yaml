@@ -36,6 +36,11 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
+  redis:
+    tags:
+      divider: ":"
+      refresh-token: token
+
   cors:
     allowed-methods: GET
     allowed-origins: http://localhost:3000
