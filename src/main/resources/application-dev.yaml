@@ -1,4 +1,10 @@
 spring:
+  data:
+    redis:
+      host: ${app.redis.host}
+      port: ${app.redis.port}
+      password: ${app.redis.password}
+      username: ${app.redis.username}
   jpa:
     show-sql: true
 
@@ -18,7 +24,8 @@ app:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:your_redis_password}
+    password: ${REDIS_PASSWORD:admin}
+    username: ${REDIS_USERNAME:admin}
   debug: ${DEBUG:false}
   auth:
     tokens:
