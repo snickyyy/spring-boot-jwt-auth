@@ -1,4 +1,10 @@
 spring:
+  data:
+    redis:
+      host: ${app.redis.host}
+      port: ${app.redis.port}
+      password: ${app.redis.password}
+      username: ${app.redis.username}
   jpa:
     show-sql: false
 
@@ -15,6 +21,11 @@ spring:
     password: ${POSTGRES_PASSWORD}
 
 app:
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    username: ${REDIS_USERNAME}
   debug: false
   auth:
     tokens:

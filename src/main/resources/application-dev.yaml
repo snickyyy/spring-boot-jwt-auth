@@ -15,6 +15,10 @@ spring:
     password: ${POSTGRES_PASSWORD:admin}
 
 app:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:your_redis_password}
   debug: ${DEBUG:false}
   auth:
     tokens:
