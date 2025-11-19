@@ -40,6 +40,7 @@ app:
     tags:
       divider: ":"
       refresh-token: token
+      users-tokens-store: users_tokens_store
 
   cors:
     allowed-methods: GET
