@@ -8,7 +8,9 @@ import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenReposito
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.PostgresRefreshTokenRepositoryImpl;
 
+@Deprecated
 @Configuration
+@ConditionalOnProperty(prefix = "app.old-config", name = "enabled", havingValue = "true")
 public class TokenRepositoryConfig {
     /**
      * Creates a Postgres-based token repository bean.

@@ -3,8 +3,9 @@ package sc.snicky.springbootjwtauth.api.v1.repositories;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.internal.InvalidTokenTtlException;
@@ -20,10 +21,11 @@ import java.util.Optional;
  * The actual implementation is not available yet and will be added in the future.
  */
 @Slf4j
-@Repository
+@Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "redis")
 public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
-    private final RedisTemplate<String, BasicRefreshToken> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisKeyUtils redisKeyUtils;
     private final UsersTokenManager usersTokenManager;
     @Value("${app.redis.tags.refresh-token:token}")
@@ -57,7 +59,7 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
     @Override
     public Optional<BasicRefreshToken> findByToken(ProtectedToken token) {
         return Optional.ofNullable(
-                redisTemplate.opsForValue().get(
+                (BasicRefreshToken) redisTemplate.opsForValue().get(
                         redisKeyUtils.buildKey(redisTokenKeyPrefix, token.getToken())
                 )
         );

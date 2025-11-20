@@ -1,6 +1,8 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.mappers.JpaRefreshTokenMapper;
@@ -10,7 +12,9 @@ import java.util.Optional;
 /**
  * The implementation of the BasicRefreshTokenRepository interface for managing tokens in a PostgreSQL database.
  */
+@Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "postgres")
 public class PostgresRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
     /**
      * JPA token repository for database operations.

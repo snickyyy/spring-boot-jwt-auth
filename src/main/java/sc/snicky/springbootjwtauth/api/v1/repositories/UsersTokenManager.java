@@ -9,7 +9,7 @@ import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
 @Repository
 @RequiredArgsConstructor
 public class UsersTokenManager {
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RedisKeyUtils redisKeyUtils;
 
     @Value("${app.redis.tags.users-tokens-store:users-tokens-store}")
