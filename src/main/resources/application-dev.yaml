@@ -2,9 +2,7 @@ spring:
   data:
     redis:
       host: ${app.redis.host}
-      port: ${app.redis.port}
-      password: ${app.redis.password}
-      username: ${app.redis.username}
+      port: ${app.redis.port} # todo add auth
   jpa:
     show-sql: true
 
