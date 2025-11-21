@@ -21,7 +21,7 @@ spring:
 app:
   redis:
     host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
+    port: ${REDIS_PORT:6444}
     password: ${REDIS_PASSWORD:admin}
     username: ${REDIS_USERNAME:admin}
   debug: ${DEBUG:false}
