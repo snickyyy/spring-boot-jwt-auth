@@ -1,4 +1,8 @@
 spring:
+  data:
+    redis:
+      host: ${app.redis.host}
+      port: ${app.redis.port} # todo add auth
   jpa:
     show-sql: true
 
@@ -15,6 +19,11 @@ spring:
     password: ${POSTGRES_PASSWORD:admin}
 
 app:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6444}
+    password: ${REDIS_PASSWORD:admin}
+    username: ${REDIS_USERNAME:admin}
   debug: ${DEBUG:false}
   auth:
     tokens:
