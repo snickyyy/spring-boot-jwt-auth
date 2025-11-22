@@ -1,4 +1,4 @@
-package unit.sc.snicky.springbootjwtauth.api.v1.services;
+package sc.snicky.springbootjwtauth.api.v1.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -17,7 +17,6 @@ import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.InvalidRe
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.BasicRefreshTokenRepository;
 import sc.snicky.springbootjwtauth.api.v1.repositories.JpaUserRepository;
-import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenServiceImpl;
 import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
 
 import java.time.Instant;

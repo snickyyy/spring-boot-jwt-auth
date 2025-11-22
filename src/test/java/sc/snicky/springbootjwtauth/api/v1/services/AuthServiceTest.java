@@ -1,4 +1,4 @@
-package unit.sc.snicky.springbootjwtauth.api.v1.services;
+package sc.snicky.springbootjwtauth.api.v1.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

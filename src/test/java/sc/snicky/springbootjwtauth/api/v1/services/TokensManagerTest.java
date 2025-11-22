@@ -1,4 +1,4 @@
-package unit.sc.snicky.springbootjwtauth.api.v1.services;
+package sc.snicky.springbootjwtauth.api.v1.services;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,6 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.NonProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
-import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenServiceImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.TokensManagerImpl;
 import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
 
 import java.time.Instant;
