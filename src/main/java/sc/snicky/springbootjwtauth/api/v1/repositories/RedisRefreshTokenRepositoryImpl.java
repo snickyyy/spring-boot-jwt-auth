@@ -1,9 +1,18 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.BasicRefreshToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.internal.InvalidTokenTtlException;
+import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -11,8 +20,17 @@ import java.util.Optional;
  * <p>
  * The actual implementation is not available yet and will be added in the future.
  */
+@Slf4j
+@Component
 @RequiredArgsConstructor
-public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository { //todo add implementation
+@ConditionalOnProperty(prefix = "app.auth.tokens.refresh", name = "db", havingValue = "redis")
+public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenRepository {
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisKeyUtils redisKeyUtils;
+    private final UsersTokenManager usersTokenManager;
+    @Value("${app.redis.tags.refresh-token:token}")
+    private String redisTokenKeyPrefix;
+
     /**
      * Stores the given refresh token in Redis.
      *
@@ -20,7 +38,16 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
      */
     @Override
     public void save(BasicRefreshToken token) {
-
+        redisTemplate.opsForValue().set(
+                redisKeyUtils.buildKey(redisTokenKeyPrefix, token.getToken().getToken()),
+                token,
+                getTtl(token.getExpiresAt())
+        );
+        usersTokenManager.assignTokenToUser(
+                token.getUser().getId(),
+                token.getToken().getToken()
+        );
+        log.info("Saved refresh token for user: {}", token.getUser().getId());
     }
 
     /**
@@ -31,7 +58,11 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
      */
     @Override
     public Optional<BasicRefreshToken> findByToken(ProtectedToken token) {
-        return Optional.empty();
+        return Optional.ofNullable(
+                (BasicRefreshToken) redisTemplate.opsForValue().get(
+                        redisKeyUtils.buildKey(redisTokenKeyPrefix, token.getToken())
+                )
+        );
     }
 
     /**
@@ -41,7 +72,9 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
      */
     @Override
     public void delete(ProtectedToken token) {
-
+        redisTemplate.opsForValue().getAndDelete(
+                redisKeyUtils.buildKey(redisTokenKeyPrefix, token.getToken())
+        );
     }
 
     /**
@@ -51,6 +84,17 @@ public class RedisRefreshTokenRepositoryImpl implements BasicRefreshTokenReposit
      */
     @Override
     public void deleteAllByUserId(Integer userId) {
+        usersTokenManager.removeAllTokensFromUser(userId);
+    }
 
+    private Duration getTtl(Instant expiresAt) {
+        Duration ttl = Duration.between(Instant.now(), expiresAt);
+
+        if (ttl.isNegative() || ttl.isZero()) {
+            throw new InvalidTokenTtlException(
+                    "Refresh token expiresAt is in the past: " + expiresAt
+            );
+        }
+        return ttl;
     }
 }
