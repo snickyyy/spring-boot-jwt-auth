@@ -6,6 +6,18 @@ spring:
   jpa:
     show-sql: true
 
+  mail:
+    host: ${MAIL_HOST}
+    password: ${MAIL_PASSWORD}
+    port: ${MAIL_PORT:587}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    username: ${MAIL_USERNAME}
+
   flyway:
     enabled: true
     locations: classpath:db/migrations
