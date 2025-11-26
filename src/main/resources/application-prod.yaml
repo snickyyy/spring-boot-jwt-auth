@@ -11,12 +11,6 @@ spring:
     host: ${MAIL_HOST}
     password: ${MAIL_PASSWORD}
     port: ${MAIL_PORT}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
     username: ${MAIL_USERNAME}
 
   flyway:
