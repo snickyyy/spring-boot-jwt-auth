@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(password))
                 .build();
         userService.saveUser(user, ERole.USER);
-        log.debug("User with email {} registered successfully, user id: {}", email, user.getId());
+        log.debug("User registered successfully, user id: {}", user.getId());
         return buildTokenPairForUser(user); // todo change on getReferenceById
     }
 
@@ -61,10 +61,10 @@ public class AuthServiceImpl implements AuthService {
         try {
             var user = userService.getUserByEmail(email);
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                log.debug("Invalid password for user with email {}", email);
+                log.debug("Invalid password for user with id {}", user.getId());
                 throw new PasswordOrEmailIsInvalidException("Password or email is invalid");
             }
-            log.debug("User with email {} logged in successfully", email);
+            log.debug("User with id {} logged in successfully", user.getId());
             return buildTokenPairForUser(user);
         } catch (UserNotFoundException e) {
             log.debug("Attempt to login with non-existent email {}", email);
