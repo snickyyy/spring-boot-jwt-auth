@@ -12,6 +12,7 @@ import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
+import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
 @Slf4j
 @Service
@@ -22,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokensManager tokensManager;
     private final RefreshTokenService refreshTokenService;
     private final AccessTokenService accessTokenService;
+    private final UserAuthValidator userAuthValidator;
 
     /**
      * Registers a new user with the provided email and password.
@@ -37,12 +39,13 @@ public class AuthServiceImpl implements AuthService {
     public TokenPair register(String email, String password) {
         var user = User.builder()
                 .email(email)
-                .isActive(true) // todo add email verification later
+                .isActive(false)
                 .password(passwordEncoder.encode(password))
                 .build();
         userService.saveUser(user, ERole.USER);
+        TokenPair tokenPair = buildTokenPairForUser(user);
         log.debug("User registered successfully, user id: {}", user.getId());
-        return buildTokenPairForUser(user); // todo change on getReferenceById
+        return tokenPair;
     }
 
     /**
@@ -60,12 +63,10 @@ public class AuthServiceImpl implements AuthService {
     public TokenPair login(String email, String password) {
         try {
             var user = userService.getUserByEmail(email);
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                log.debug("Invalid password for user with id {}", user.getId());
-                throw new PasswordOrEmailIsInvalidException("Password or email is invalid");
-            }
+            userAuthValidator.validateCredentials(user, password);
             log.debug("User with id {} logged in successfully", user.getId());
             return buildTokenPairForUser(user);
+
         } catch (UserNotFoundException e) {
             log.debug("Attempt to login with non-existent email {}", email);
             throw new PasswordOrEmailIsInvalidException("Password or email is invalid");
