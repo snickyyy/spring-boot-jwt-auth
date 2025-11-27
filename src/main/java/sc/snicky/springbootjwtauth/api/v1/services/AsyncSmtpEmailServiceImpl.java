@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AsyncEmailServiceImpl implements EmailService {
+public class AsyncSmtpEmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     @Async
