@@ -2,6 +2,7 @@ package sc.snicky.springbootjwtauth.api.v1.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,15 +10,21 @@ import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
+import sc.snicky.springbootjwtauth.api.v1.events.UserRegisteredEvent;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
+import java.security.SecureRandom;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private static final SecureRandom random = new SecureRandom();
+
+    private final ApplicationEventPublisher publisher;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final TokensManager tokensManager;
@@ -44,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         userService.saveUser(user, ERole.USER);
         TokenPair tokenPair = buildTokenPairForUser(user);
+        publisher.publishEvent(new UserRegisteredEvent(user, generateVerificationCode()));
         log.debug("User registered successfully, user id: {}", user.getId());
         return tokenPair;
     }
@@ -98,5 +106,10 @@ public class AuthServiceImpl implements AuthService {
         var refreshToken = refreshTokenService.generate(user.getId());
         var accessToken = accessTokenService.generate(UserDetailsAdaptor.ofUser(refreshToken.getUser()));
         return TokensManagerImpl.buildTokenPair(accessToken, refreshToken);
+    }
+
+    private int generateVerificationCode() {
+        // CHECKSTYLE:OFF
+        return 100000 + random.nextInt(900000);
     }
 }

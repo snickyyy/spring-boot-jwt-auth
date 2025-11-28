@@ -21,6 +21,6 @@ public class AsyncSmtpEmailServiceImpl implements EmailService {
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
         mailSender.send(mailMessage);
-        log.info("Sent email to {}", to);
+        log.info("Send email to {}", to);
     }
 }
