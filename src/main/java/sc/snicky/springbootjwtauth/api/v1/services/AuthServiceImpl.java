@@ -17,6 +17,7 @@ import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFound
 import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
 import java.security.SecureRandom;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -49,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
                 .isActive(false)
                 .password(passwordEncoder.encode(password))
                 .build();
-        userService.saveUser(user, ERole.USER);
+        userService.saveUser(user, ERole.ANONYMOUS);
         TokenPair tokenPair = buildTokenPairForUser(user);
         publisher.publishEvent(new UserRegisteredEvent(user, generateVerificationCode()));
         log.debug("User registered successfully, user id: {}", user.getId());
@@ -108,8 +109,7 @@ public class AuthServiceImpl implements AuthService {
         return TokensManagerImpl.buildTokenPair(accessToken, refreshToken);
     }
 
-    private int generateVerificationCode() {
-        // CHECKSTYLE:OFF
-        return 100000 + random.nextInt(900000);
+    private String generateVerificationCode() {
+        return UUID.randomUUID().toString();
     }
 }
