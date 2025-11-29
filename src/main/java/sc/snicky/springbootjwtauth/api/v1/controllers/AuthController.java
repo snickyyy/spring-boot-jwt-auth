@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.dtos.requests.AuthRequest;
 import sc.snicky.springbootjwtauth.api.v1.dtos.responses.AuthResponse;
+import sc.snicky.springbootjwtauth.api.v1.dtos.responses.MessageResponse;
 import sc.snicky.springbootjwtauth.api.v1.services.AuthService;
 import sc.snicky.springbootjwtauth.api.v1.services.SessionService;
 
@@ -42,13 +43,16 @@ public class AuthController {
      */
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Registers a new user and returns authentication tokens.")
-    public ResponseEntity<AuthResponse> register(
+    public ResponseEntity<MessageResponse<String>> register(
             HttpServletResponse response, @Valid @RequestBody AuthRequest authRequest) {
 
-        var tokens = authService.register(authRequest.email(), authRequest.password());
-        sessionService.setSessionToken(response, tokens.refreshToken());
+        authService.register(authRequest.email(), authRequest.password());
 
-        return buildAuthResponse(response, tokens, "User registered successfully");
+        return ResponseEntity.ok()
+                .body(
+                        MessageResponse
+                                .of("User registered successfully. Please check your email to verify your account.")
+                );
     }
 
     /**

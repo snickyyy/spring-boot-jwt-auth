@@ -50,6 +50,7 @@ app:
       divider: ":"
       refresh-token: token
       users-tokens-store: users_tokens_store
+      email-verification: email_verification
 
   cors:
     allowed-methods: GET

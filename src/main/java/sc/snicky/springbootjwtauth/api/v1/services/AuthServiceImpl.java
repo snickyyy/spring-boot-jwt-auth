@@ -2,7 +2,9 @@ package sc.snicky.springbootjwtauth.api.v1.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,18 +14,21 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.events.UserRegisteredEvent;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
+import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
 import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
-import java.security.SecureRandom;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private static final SecureRandom random = new SecureRandom();
+    @Value("${app.redis.tags.email-verification:email_verification}")
+    private String redisEmailConfirmCodeKeyPrefix;
+    private final RedisKeyUtils redisKeyUtils;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private final ApplicationEventPublisher publisher;
     private final PasswordEncoder passwordEncoder;
@@ -35,26 +40,31 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Registers a new user with the provided email and password.
-     * If the user already exists, a {@link UserAlreadyExistException} is thrown.
+     * The user is created in an inactive state.
      *
-     * @param email    the email of the user to register
-     * @param password the password of the user to register
-     * @return a {@link TokenPair} containing the access and refresh tokens for the registered user
-     * @throws UserAlreadyExistException if a user with the given email already exists
+     * @param email the email of the new user
+     * @param password the password of the new user
      */
     @Override
     @Transactional
-    public TokenPair register(String email, String password) {
+    public void register(String email, String password) {
         var user = User.builder()
                 .email(email)
                 .isActive(false)
                 .password(passwordEncoder.encode(password))
                 .build();
-        userService.saveUser(user, ERole.ANONYMOUS);
-        TokenPair tokenPair = buildTokenPairForUser(user);
-        publisher.publishEvent(new UserRegisteredEvent(user, generateVerificationCode()));
+        userService.saveUser(user, ERole.USER);
+        String confirmationCode = generateVerificationCode();
+        publisher.publishEvent(new UserRegisteredEvent(user, confirmationCode));
+        redisTemplate.opsForValue().set(
+                        redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, confirmationCode), user.getId()
+                );
         log.debug("User registered successfully, user id: {}", user.getId());
-        return tokenPair;
+    }
+
+    @Override
+    public void verifyAccount(String verificationCode) {
+
     }
 
     /**
