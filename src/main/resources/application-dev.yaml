@@ -47,3 +47,4 @@ app:
       expiration:
         access: ${ACCESS_TOKEN_EXP_TIME_MS:900000}          # 15 minutes
         refresh: ${REFRESH_TOKEN_EXP_TIME_MS:604800000}     # 7 days
+        email-verification: ${EMAIL_VERIFICATION_TOKEN_EXP_TIME_MS:900000} # 15 minutes

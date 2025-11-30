@@ -21,11 +21,6 @@ import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
-import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.AuthServiceImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.RefreshTokenService;
-import sc.snicky.springbootjwtauth.api.v1.services.TokensManagerImpl;
-import sc.snicky.springbootjwtauth.api.v1.services.UserService;
 import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
 
 import java.time.Instant;
@@ -107,7 +102,7 @@ public class AuthServiceTest {
     @Test
     void testLoginWithSuccess() {
         var user = buildUser();
-        when(userService.getUserByEmail(TEST_EMAIL)).thenReturn(user);
+        when(userService.getActiveUserByEmail(TEST_EMAIL)).thenReturn(user);
         var token = buildToken(user);
         when(refreshTokenService.generate(user.getId())).thenReturn(token);
 
@@ -119,30 +114,30 @@ public class AuthServiceTest {
         assertDoesNotThrow(() -> accessTokenService.extractUserDetails(tokenPair.accessToken()));
         assertEquals(user.getEmail(), accessTokenService.extractUserDetails(tokenPair.accessToken()).getUsername());
 
-        verify(userService).getUserByEmail(TEST_EMAIL);
+        verify(userService).getActiveUserByEmail(TEST_EMAIL);
         verify(refreshTokenService).generate(user.getId());
     }
 
     @Test
     void testLoginWithInvalidPassword() {
         var user = buildUser();
-        when(userService.getUserByEmail(TEST_EMAIL)).thenReturn(user);
+        when(userService.getActiveUserByEmail(TEST_EMAIL)).thenReturn(user);
 
         assertThrows(PasswordOrEmailIsInvalidException.class,
                 () -> authService.login(TEST_EMAIL, "wrongpassword"));
 
-        verify(userService).getUserByEmail(TEST_EMAIL);
+        verify(userService).getActiveUserByEmail(TEST_EMAIL);
     }
 
     @Test
     void testLoginWithInvalidEmail() {
-        when(userService.getUserByEmail(TEST_EMAIL))
+        when(userService.getActiveUserByEmail(TEST_EMAIL))
                 .thenThrow(UserNotFoundException.class);
 
         assertThrows(PasswordOrEmailIsInvalidException.class,
                 () -> authService.login(TEST_EMAIL, TEST_PASSWORD));
 
-        verify(userService).getUserByEmail(TEST_EMAIL);
+        verify(userService).getActiveUserByEmail(TEST_EMAIL);
     }
 
     private RefreshTokenDetails buildToken(User user) {

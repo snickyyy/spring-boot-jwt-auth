@@ -14,10 +14,13 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.events.UserRegisteredEvent;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.VerificationCodeIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
 import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
 import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j
@@ -26,6 +29,9 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
     @Value("${app.redis.tags.email-verification:email_verification}")
     private String redisEmailConfirmCodeKeyPrefix;
+    @Value("${app.auth.tokens.expiration.email-verification:900000}")
+    private Long emailVerificationDurationMs;
+
     private final RedisKeyUtils redisKeyUtils;
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -54,17 +60,43 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(password))
                 .build();
         userService.saveUser(user, ERole.USER);
+
         String confirmationCode = generateVerificationCode();
         publisher.publishEvent(new UserRegisteredEvent(user, confirmationCode));
+
         redisTemplate.opsForValue().set(
-                        redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, confirmationCode), user.getId()
-                );
+                redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, confirmationCode),
+                user.getId(),
+                Duration.between(Instant.now(), Instant.now().plusSeconds(emailVerificationDurationMs)));
+
         log.debug("User registered successfully, user id: {}", user.getId());
     }
 
+    /**
+     * Verifies a user's account using the provided verification code.
+     * The verification code is typically sent to the user's email.
+     *
+     * @param verificationCode the code used to verify the user's account
+     */
     @Override
+    @Transactional
     public void verifyAccount(String verificationCode) {
-
+        var data = redisTemplate.opsForValue().getAndDelete(
+                redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, verificationCode));
+        if (!(data instanceof Integer)) {
+            log.debug("Invalid verification code attempt: {}", verificationCode);
+            throw new VerificationCodeIsInvalidException("Verification code is invalid");
+        }
+        int userId = (int) data;
+        try {
+            var user = userService.getUserById(userId);
+            user.setIsActive(true);
+            userService.saveUser(user);
+            log.debug("User with id {} verified successfully", userId);
+        } catch (UserNotFoundException e) {
+            log.warn("Verification code {} matched userId {}, but user not found", verificationCode, userId);
+            throw new VerificationCodeIsInvalidException("Verification code is invalid");
+        }
     }
 
     /**
@@ -81,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenPair login(String email, String password) {
         try {
-            var user = userService.getUserByEmail(email);
+            var user = userService.getActiveUserByEmail(email);
             userAuthValidator.validateCredentials(user, password);
             log.debug("User with id {} logged in successfully", user.getId());
             return buildTokenPairForUser(user);
