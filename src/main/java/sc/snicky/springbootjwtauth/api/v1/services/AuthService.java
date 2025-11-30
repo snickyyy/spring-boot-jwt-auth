@@ -5,12 +5,20 @@ import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 public interface AuthService { // todo add method assign role
     /**
      * Registers a new user with the provided email and password.
+     * The user is created in an inactive state.
      *
      * @param email the email of the new user
      * @param password the password of the new user
-     * @return a TokenPair containing the access and refresh tokens
      */
-    TokenPair register(String email, String password);
+    void register(String email, String password);
+
+    /**
+     * Verifies a user's account using the provided verification code.
+     * The verification code is typically sent to the user's email.
+     *
+     * @param verificationCode the code used to verify the user's account
+     */
+    void verifyAccount(String verificationCode);
 
     /**
      * Authenticates a user with the provided email and password.

@@ -10,13 +10,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
 import sc.snicky.springbootjwtauth.api.v1.dtos.requests.AuthRequest;
 import sc.snicky.springbootjwtauth.api.v1.dtos.responses.AuthResponse;
+import sc.snicky.springbootjwtauth.api.v1.dtos.responses.MessageResponse;
 import sc.snicky.springbootjwtauth.api.v1.services.AuthService;
 import sc.snicky.springbootjwtauth.api.v1.services.SessionService;
 
@@ -36,19 +39,20 @@ public class AuthController {
     /**
      * Registers a new user and returns authentication tokens.
      *
-     * @param response    the HTTP response
      * @param authRequest the authentication request containing user credentials
      * @return a response entity containing the authentication response
      */
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Registers a new user and returns authentication tokens.")
-    public ResponseEntity<AuthResponse> register(
-            HttpServletResponse response, @Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<MessageResponse<String>> register(@Valid @RequestBody AuthRequest authRequest) {
 
-        var tokens = authService.register(authRequest.email(), authRequest.password());
-        sessionService.setSessionToken(response, tokens.refreshToken());
+        authService.register(authRequest.email(), authRequest.password());
 
-        return buildAuthResponse(response, tokens, "User registered successfully");
+        return ResponseEntity.ok()
+                .body(
+                        MessageResponse
+                                .of("User registered successfully. Please check your email to verify your account.")
+                );
     }
 
     /**
@@ -69,6 +73,24 @@ public class AuthController {
         sessionService.setSessionToken(response, tokens.refreshToken());
 
         return buildAuthResponse(response, tokens, "User logged in successfully");
+    }
+
+    /**
+     * Confirms the user's email address using the provided verification code.
+     *
+     * @param code the verification code sent to the user's email
+     * @return a response entity containing a success message
+     */
+    @GetMapping("/confirm")
+    @Operation(summary = "Confirm email address",
+            description = "Confirms the user's email address using the provided verification code.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Email confirmed successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid or expired verification code")
+            })
+    public ResponseEntity<MessageResponse<String>> confirmEmail(@RequestParam String code) {
+        authService.verifyAccount(code);
+        return ResponseEntity.ok(MessageResponse.of("Successfully verified account, please login."));
     }
 
     /**

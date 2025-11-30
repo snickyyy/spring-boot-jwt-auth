@@ -1,7 +1,11 @@
 package sc.snicky.springbootjwtauth.api.v1.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,40 +13,92 @@ import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.UserDetailsAdaptor;
 import sc.snicky.springbootjwtauth.api.v1.dtos.TokenPair;
+import sc.snicky.springbootjwtauth.api.v1.events.UserRegisteredEvent;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
-import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
+import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.VerificationCodeIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
+import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
+import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Service
+@Setter
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    @Value("${app.redis.tags.email-verification:email_verification}")
+    private String redisEmailConfirmCodeKeyPrefix;
+    @Value("${app.auth.tokens.expiration.email-verification:900000}")
+    private Long emailVerificationDurationMs;
+
+    private final RedisKeyUtils redisKeyUtils;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final ApplicationEventPublisher publisher;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final TokensManager tokensManager;
     private final RefreshTokenService refreshTokenService;
     private final AccessTokenService accessTokenService;
+    private final UserAuthValidator userAuthValidator;
 
     /**
      * Registers a new user with the provided email and password.
-     * If the user already exists, a {@link UserAlreadyExistException} is thrown.
+     * The user is created in an inactive state.
      *
-     * @param email    the email of the user to register
-     * @param password the password of the user to register
-     * @return a {@link TokenPair} containing the access and refresh tokens for the registered user
-     * @throws UserAlreadyExistException if a user with the given email already exists
+     * @param email the email of the new user
+     * @param password the password of the new user
      */
     @Override
     @Transactional
-    public TokenPair register(String email, String password) {
+    public void register(String email, String password) {
         var user = User.builder()
                 .email(email)
-                .isActive(true) // todo add email verification later
+                .isActive(false)
                 .password(passwordEncoder.encode(password))
                 .build();
         userService.saveUser(user, ERole.USER);
-        log.debug("User with email {} registered successfully, user id: {}", email, user.getId());
-        return buildTokenPairForUser(user); // todo change on getReferenceById
+
+        String confirmationCode = generateVerificationCode();
+        publisher.publishEvent(new UserRegisteredEvent(user.getEmail(), confirmationCode));
+
+        redisTemplate.opsForValue().set(
+                redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, confirmationCode),
+                user.getId(),
+                Duration.between(Instant.now(), Instant.now().plusSeconds(emailVerificationDurationMs)));
+
+        log.debug("User registered successfully, user id: {}", user.getId());
+    }
+
+    /**
+     * Verifies a user's account using the provided verification code.
+     * The verification code is typically sent to the user's email.
+     *
+     * @param verificationCode the code used to verify the user's account
+     */
+    @Override
+    @Transactional
+    public void verifyAccount(String verificationCode) {
+        var data = redisTemplate.opsForValue().getAndDelete(
+                redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, verificationCode));
+        if (!(data instanceof Integer)) {
+            log.debug("Invalid verification code attempt: {}", verificationCode);
+            throw new VerificationCodeIsInvalidException("Verification code is invalid");
+        }
+        int userId = (int) data;
+        try {
+            var user = userService.getUserById(userId);
+            user.setIsActive(true);
+            userService.saveUser(user);
+            log.debug("User with id {} verified successfully", userId);
+        } catch (UserNotFoundException e) {
+            log.warn("Verification code {} matched userId {}, but user not found", verificationCode, userId);
+            throw new VerificationCodeIsInvalidException("Verification code is invalid");
+        }
     }
 
     /**
@@ -59,13 +115,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenPair login(String email, String password) {
         try {
-            var user = userService.getUserByEmail(email);
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                log.debug("Invalid password for user with email {}", email);
-                throw new PasswordOrEmailIsInvalidException("Password or email is invalid");
-            }
-            log.debug("User with email {} logged in successfully", email);
+            var user = userService.getActiveUserByEmail(email);
+            userAuthValidator.validateCredentials(user, password);
+            log.debug("User with id {} logged in successfully", user.getId());
             return buildTokenPairForUser(user);
+
         } catch (UserNotFoundException e) {
             log.debug("Attempt to login with non-existent email {}", email);
             throw new PasswordOrEmailIsInvalidException("Password or email is invalid");
@@ -97,5 +151,9 @@ public class AuthServiceImpl implements AuthService {
         var refreshToken = refreshTokenService.generate(user.getId());
         var accessToken = accessTokenService.generate(UserDetailsAdaptor.ofUser(refreshToken.getUser()));
         return TokensManagerImpl.buildTokenPair(accessToken, refreshToken);
+    }
+
+    private String generateVerificationCode() {
+        return UUID.randomUUID().toString();
     }
 }
