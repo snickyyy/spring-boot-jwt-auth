@@ -13,6 +13,13 @@ import org.springframework.stereotype.Service;
 public class AsyncSmtpEmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
+    /**
+     * Sends an email asynchronously.
+     *
+     * @param to      the recipient's email address
+     * @param subject the subject of the email
+     * @param body    the body of the email
+     */
     @Async
     @Override
     public void sendEmail(String to, String subject, String body) {

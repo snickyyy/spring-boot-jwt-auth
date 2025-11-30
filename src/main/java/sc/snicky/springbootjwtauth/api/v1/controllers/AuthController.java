@@ -75,6 +75,12 @@ public class AuthController {
         return buildAuthResponse(response, tokens, "User logged in successfully");
     }
 
+    /**
+     * Confirms the user's email address using the provided verification code.
+     *
+     * @param code the verification code sent to the user's email
+     * @return a response entity containing a success message
+     */
     @GetMapping("/confirm")
     @Operation(summary = "Confirm email address",
             description = "Confirms the user's email address using the provided verification code.",

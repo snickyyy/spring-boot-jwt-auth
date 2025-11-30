@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         userService.saveUser(user, ERole.USER);
 
         String confirmationCode = generateVerificationCode();
-        publisher.publishEvent(new UserRegisteredEvent(user, confirmationCode));
+        publisher.publishEvent(new UserRegisteredEvent(user.getEmail(), confirmationCode));
 
         redisTemplate.opsForValue().set(
                 redisKeyUtils.buildKey(redisEmailConfirmCodeKeyPrefix, confirmationCode),

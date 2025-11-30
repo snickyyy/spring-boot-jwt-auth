@@ -26,13 +26,14 @@ public class EmailEventListener {
      */
     @EventListener
     public void handleUserRegisteredEvent(UserRegisteredEvent event) {
-        var user = event.user();
         String subject = "Welcome to Our Service!";
-        String body = String.format("Hello %s,\n\nThank you for registering with us!\n\nConfirm link: %s,\n",
-                user.getEmail(), buildConfirmLink(event.confirmCode()));
+        var body = String.format(
+                "Hello %s,%n%nThank you for registering with us!%n%nConfirm link: %s,%n",
+                event.userEmail(),
+                event.confirmCode()
+        );
 
-        emailService.sendEmail(user.getEmail(), subject, body);
-        log.info("Received UserRegisteredEvent for user with id {}", user.getId());
+        emailService.sendEmail(event.userEmail(), subject, body);
     }
 
     private String buildConfirmLink(String confirmCode) {

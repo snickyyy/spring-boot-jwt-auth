@@ -80,6 +80,7 @@ public class AuthServiceTest {
      */
     @BeforeEach
     void setUp() {
+        // CHECKSTYLE:OFF
         accessTokenService.setJwtSigningKey("test_jwt_signing_key_which_should_be_replaced");
         accessTokenService.setAccessTokenDurationMs(TEST_ACCESS_TOKEN_DURATION); // 1 hour
 
