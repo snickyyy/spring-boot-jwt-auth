@@ -1,3 +1,7 @@
+server:
+  address: ${SERVER_ADDRESS:localhost}
+  port: ${SERVER_PORT:8080}
+
 spring:
   data:
     redis:
@@ -5,6 +9,12 @@ spring:
       port: ${app.redis.port} # todo add auth
   jpa:
     show-sql: true
+
+  mail:
+    host: ${MAIL_HOST}
+    password: ${MAIL_PASSWORD}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
 
   flyway:
     enabled: true
@@ -37,3 +47,4 @@ app:
       expiration:
         access: ${ACCESS_TOKEN_EXP_TIME_MS:900000}          # 15 minutes
         refresh: ${REFRESH_TOKEN_EXP_TIME_MS:604800000}     # 7 days
+        email-verification: ${EMAIL_VERIFICATION_TOKEN_EXP_TIME_MS:900000} # 15 minutes

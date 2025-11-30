@@ -18,6 +18,15 @@ spring:
   application:
     name: spring-boot-jwt-auth
 
+  mail:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
   jackson:
     property-naming-strategy: SNAKE_CASE
 
@@ -41,6 +50,7 @@ app:
       divider: ":"
       refresh-token: token
       users-tokens-store: users_tokens_store
+      email-verification: email_verification
 
   cors:
     allowed-methods: GET

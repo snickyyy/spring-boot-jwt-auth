@@ -1,4 +1,4 @@
-package unit.sc.snicky.springbootjwtauth.api.v1.services;
+package sc.snicky.springbootjwtauth.api.v1.services;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.User;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
-import sc.snicky.springbootjwtauth.api.v1.services.AccessTokenServiceImpl;
 
 /**
  * Unit tests for {@link AccessTokenServiceImpl}.
