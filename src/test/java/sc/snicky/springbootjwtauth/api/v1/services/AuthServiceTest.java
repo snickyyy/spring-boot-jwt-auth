@@ -8,6 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import sc.snicky.springbootjwtauth.api.v1.domain.enums.ERole;
@@ -18,10 +21,13 @@ import sc.snicky.springbootjwtauth.api.v1.domain.models.Role;
 import sc.snicky.springbootjwtauth.api.v1.domain.models.User;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.NonProtectedToken;
 import sc.snicky.springbootjwtauth.api.v1.domain.types.ProtectedToken;
+import sc.snicky.springbootjwtauth.api.v1.events.UserRegisteredEvent;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.security.PasswordOrEmailIsInvalidException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserAlreadyExistException;
 import sc.snicky.springbootjwtauth.api.v1.exceptions.business.users.UserNotFoundException;
+import sc.snicky.springbootjwtauth.api.v1.repositories.utils.RedisKeyUtils;
 import sc.snicky.springbootjwtauth.api.v1.services.utils.TokenUtils;
+import sc.snicky.springbootjwtauth.api.v1.services.validators.UserAuthValidator;
 
 import java.time.Instant;
 
@@ -30,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -46,18 +51,26 @@ public class AuthServiceTest {
     private final String TEST_NON_PROTECTED_TOKEN = TokenUtils.generateToken();
     private final ProtectedToken TEST_PROTECTED_TOKEN = new ProtectedToken(TokenUtils.hashToken(TEST_NON_PROTECTED_TOKEN));
 
-
     @Spy
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Spy
+    private final RedisKeyUtils redisKeyUtils = new RedisKeyUtils();
     @Mock
     private UserService userService;
     @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+    @Mock
     private TokensManagerImpl tokensManager;
     @Mock
+    private ApplicationEventPublisher publisher;
+    @Mock
     private RefreshTokenService refreshTokenService;
+    @Mock
+    private UserAuthValidator userAuthValidator;
     @Spy
     private AccessTokenServiceImpl accessTokenService = new AccessTokenServiceImpl();
-
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -69,24 +82,26 @@ public class AuthServiceTest {
     void setUp() {
         accessTokenService.setJwtSigningKey("test_jwt_signing_key_which_should_be_replaced");
         accessTokenService.setAccessTokenDurationMs(TEST_ACCESS_TOKEN_DURATION); // 1 hour
+
+        authService.setEmailVerificationDurationMs(900000L);
+        authService.setRedisEmailConfirmCodeKeyPrefix("email_verification");
+
+        redisKeyUtils.setRedisKeyDivider(":");
     }
 
     @Test
     void testRegisterWithSuccess() {
         doNothing().when(userService).saveUser(any(), any(ERole.class));
-        var token = buildToken(buildUser());
-        when(refreshTokenService.generate(isNull(Integer.class))).thenReturn(token);
+        doNothing().when(publisher).publishEvent(any(UserRegisteredEvent.class));
 
-        var tokenPair = authService.register(TEST_EMAIL, TEST_PASSWORD);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        doNothing().when(valueOperations).set(any(), any(), any());
 
-        assertNotNull(tokenPair);
-        assertNotNull(tokenPair.accessToken());
-        assertNotNull(tokenPair.refreshToken());
-        assertDoesNotThrow(() -> accessTokenService.extractUserDetails(tokenPair.accessToken()));
-        assertEquals(buildUser().getEmail(), accessTokenService.extractUserDetails(tokenPair.accessToken()).getUsername());
+        authService.register(TEST_EMAIL, TEST_PASSWORD);
 
         verify(userService).saveUser(any(), any(ERole.class));
-        verify(refreshTokenService).generate(isNull(Integer.class));
+        verify(publisher).publishEvent(any(UserRegisteredEvent.class));
+        verify(valueOperations).set(any(), any(), any());
     }
 
     @Test
@@ -122,11 +137,14 @@ public class AuthServiceTest {
     void testLoginWithInvalidPassword() {
         var user = buildUser();
         when(userService.getActiveUserByEmail(TEST_EMAIL)).thenReturn(user);
+        doThrow(PasswordOrEmailIsInvalidException.class).when(userAuthValidator)
+                .validateCredentials(user, "wrongpassword");
 
         assertThrows(PasswordOrEmailIsInvalidException.class,
                 () -> authService.login(TEST_EMAIL, "wrongpassword"));
 
         verify(userService).getActiveUserByEmail(TEST_EMAIL);
+        verify(userAuthValidator).validateCredentials(user, "wrongpassword");
     }
 
     @Test

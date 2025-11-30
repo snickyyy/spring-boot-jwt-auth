@@ -1,6 +1,7 @@
 package sc.snicky.springbootjwtauth.api.v1.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Setter
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     @Value("${app.redis.tags.email-verification:email_verification}")

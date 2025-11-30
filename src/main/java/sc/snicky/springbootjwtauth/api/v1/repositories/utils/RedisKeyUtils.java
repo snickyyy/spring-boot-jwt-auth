@@ -1,8 +1,10 @@
 package sc.snicky.springbootjwtauth.api.v1.repositories.utils;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Setter
 @Component
 public class RedisKeyUtils {
     @Value("${app.redis.tags.divider::}")
